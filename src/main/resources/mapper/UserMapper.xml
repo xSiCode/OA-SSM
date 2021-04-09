@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.th.dao.UserDao">
+
+<!--    User login(Integer userId, String userPassword, String userRole);
+SELECT	`user_id`,`user_password`,`user_role` FROM `t_user`
+	WHERE	`user_id`=1008
+		AND	`user_password`='505480'
+		AND	`user_role`='A';
+-->
+    <select id="login"  resultType="com.th.bean.User" >
+        select * from `t_user` where `user_id`=#{userId} AND
+        	`user_password`=#{userPassword} AND	`user_role`=#{userRole};
+    </select>
+<!--
+SELECT * FROM `oa-forairacademy`.t_user;
+#t_user
+-     //登录功能，参数只有三个
+-     USER login(@Param("userId")INTEGER userId,
+-                @Param("userPassword")STRING userPassword,
+-                @Param("userRole") STRING userRole);
+select * from `t_user` where `user_id`=1001 AND
+        	`user_password`='112546' AND	`user_role`='A';
+
+-     //用户信息完善 或 修改信息，参数有9个，是个USER
+-     USER updateInfo(USER USER);
+UPDATE `t_user`
+SET
+`user_id`=9999,
+`user_password` = 'xiugaimima',
+`user_role` = 'a',
+`user_name` = '杨明天发',
+`user_tel` = '15114049298',
+`user_email` = 'xsicod@outlook.com',
+`user_sex` = '男',
+`user_birth` ='1991-11-23',
+`user_id_card` ='511529199711185614'
+WHERE `user_id` = 1001;
+
+-->
+
+
+
+</mapper>
