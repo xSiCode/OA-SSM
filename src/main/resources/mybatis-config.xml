@@ -10,10 +10,8 @@
     <settings>
         <setting name="mapUnderscoreToCamelCase" value="true"/>
     </settings>
-<!--    类型别名，方便引用-->
-    <typeAliases>
-        <package name="com.th.bean"/>
-    </typeAliases>
+
+
 
 
 </configuration>

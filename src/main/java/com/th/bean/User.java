@@ -2,10 +2,12 @@ package com.th.bean;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.format.annotation.NumberFormat;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 @Component
@@ -32,8 +34,9 @@ public class User {
 
     private String userSex;
 
-    @JsonFormat(pattern = "yyyy-MM-dd")
-    private Date userBirth;
+   // @DateTimeFormat(pattern="yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
+    private LocalDate userBirth;
 
     private String userIdCard;
 
@@ -41,12 +44,14 @@ public class User {
     public User() {
     }
 
-    public User(Integer userId) {
+    public User(Integer userId, String userPassword, String userRole) {
         this.userId = userId;
+        this.userPassword = userPassword;
+        this.userRole = userRole;
     }
 
     public User(Integer userId, String userPassword, String userRole, String userName, String userTel,
-                String userEmail, String userSex, Date userBirth, String userIdCard) {
+                String userEmail, String userSex, LocalDate userBirth, String userIdCard) {
         this.userId = userId;
         this.userPassword = userPassword;
         this.userRole = userRole;
@@ -71,7 +76,7 @@ public class User {
     }
 
     public void setUserPassword(String userPassword) {
-        this.userPassword = userPassword == null ? null : userPassword.trim();
+        this.userPassword = userPassword;
     }
 
     public String getUserRole() {
@@ -79,7 +84,7 @@ public class User {
     }
 
     public void setUserRole(String userRole) {
-        this.userRole = userRole == null ? null : userRole.trim();
+        this.userRole = userRole;
     }
 
     public String getUserName() {
@@ -87,7 +92,7 @@ public class User {
     }
 
     public void setUserName(String userName) {
-        this.userName = userName == null ? null : userName.trim();
+        this.userName = userName;
     }
 
     public String getUserTel() {
@@ -95,7 +100,7 @@ public class User {
     }
 
     public void setUserTel(String userTel) {
-        this.userTel = userTel == null ? null : userTel.trim();
+        this.userTel = userTel;
     }
 
     public String getUserEmail() {
@@ -103,7 +108,7 @@ public class User {
     }
 
     public void setUserEmail(String userEmail) {
-        this.userEmail = userEmail == null ? null : userEmail.trim();
+        this.userEmail = userEmail;
     }
 
     public String getUserSex() {
@@ -111,14 +116,14 @@ public class User {
     }
 
     public void setUserSex(String userSex) {
-        this.userSex = userSex == null ? null : userSex.trim();
+        this.userSex = userSex;
     }
 
-    public Date getUserBirth() {
+    public LocalDate getUserBirth() {
         return userBirth;
     }
 
-    public void setUserBirth(Date userBirth) {
+    public void setUserBirth(LocalDate userBirth) {
         this.userBirth = userBirth;
     }
 
@@ -127,7 +132,7 @@ public class User {
     }
 
     public void setUserIdCard(String userIdCard) {
-        this.userIdCard = userIdCard == null ? null : userIdCard.trim();
+        this.userIdCard = userIdCard;
     }
 
     @Override

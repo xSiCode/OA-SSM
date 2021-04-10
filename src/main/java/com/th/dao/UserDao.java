@@ -3,7 +3,6 @@ package com.th.dao;
 import com.th.bean.User;
 import org.apache.ibatis.annotations.Param;
 
-import javax.jws.soap.SOAPBinding;
 import java.util.List;
 
 /**
@@ -22,9 +21,13 @@ public interface UserDao {
                @Param("userRole") String userRole);
     //
 
+    //查询 指定ID用户
+    User selectByUserId(Integer id);
 
     //用户列表，批量展示用户所有信息   ：A
-    List<User> getUsersList();
+    List<User> selectUsersList();
+
+    List<User> selectUserLikeUserName(String name);
 
 //    update
     //信息完善 &修改信息，参数有9个，是个user   :A,T
@@ -32,7 +35,9 @@ public interface UserDao {
 
 //    create
     //新增用户      ：A
-    int addUser(User user);
+    int insertUser(User user);
+    //批量新增用户     ：主要是为了造数据
+    int insertUsers( @Param("users") List<User> users);
 
 //    delete
     //删除指定用户    ：A

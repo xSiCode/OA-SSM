@@ -1,17 +1,45 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.th.dao.UserDao">
+    <sql id="Base_Column_List">
+       `user_id`,`user_password`,`user_role`,`user_name`,`user_tel`,
+       `user_email`,`user_sex`,`user_birth`,`user_id_card`
+    </sql>
 
-<!--    User login(Integer userId, String userPassword, String userRole);
-SELECT	`user_id`,`user_password`,`user_role` FROM `t_user`
-	WHERE	`user_id`=1008
-		AND	`user_password`='505480'
-		AND	`user_role`='A';
--->
     <select id="login"  resultType="com.th.bean.User" >
-        select * from `t_user` where `user_id`=#{userId} AND
-        	`user_password`=#{userPassword} AND	`user_role`=#{userRole};
+        select <include refid="Base_Column_List" />
+        from `t_user`
+        where `user_id`=#{userId}
+            AND `user_password`=#{userPassword}
+            AND	`user_role`=#{userRole};
     </select>
+
+    <select id="selectByUserId" resultType="com.th.bean.User">
+        select <include refid="Base_Column_List" />
+        from `t_user`
+        where user_id =#{id}
+
+    </select>
+
+    <select id="selectUsersList" resultType="com.th.bean.User">
+        select <include refid="Base_Column_List" />
+        from `t_user`
+    </select>
+
+    <insert id="insertUser" useGeneratedKeys="true" keyProperty="userId">
+        insert into `t_user`( <include refid="Base_Column_List" />  )
+        values ( #{ userId }, #{ userPassword }, #{ userRole}, #{ userName}, #{ userTel},
+        #{userEmail }, #{userSex }, #{ userBirth}, #{ userIdCard })
+    </insert>
+
+    <insert id="insertUsers" useGeneratedKeys="true" keyProperty="userId">
+        insert into `t_user`( <include refid="Base_Column_List" />  )
+        values
+        <foreach collection="users" item="user" separator=",">
+            ( #{ userId }, #{ userPassword }, #{ userRole}, #{ userName}, #{ userTel},
+            #{userEmail }, #{userSex }, #{ userBirth}, #{ userIdCard })
+        </foreach>
+    </insert>
 <!--
 SELECT * FROM `oa-forairacademy`.t_user;
 #t_user

@@ -26,7 +26,7 @@
 <!--    包括：注解映射器，注解适配器-->
     <mvc:default-servlet-handler/>
 
-    <mvc:annotation-driven/>
+    <mvc:annotation-driven > </mvc:annotation-driven>
 
 
 
