@@ -49,9 +49,9 @@
     ////////////////////////////////////
         $("#btn_json_2").click(function ( ){
             var user={
-                "userId":1234,
-                "userPassword":"123456789",
-                "userRole":"t",
+                "userId":1000,
+                "userPassword":"123456",
+                "userRole":"A",
             };
             var jsonValue=JSON.stringify(user);
             $.ajax({
@@ -172,8 +172,8 @@
             };
             var jsonValue=JSON.stringify(user);
             $.ajax({
-               // url:"${pageContext.request.contextPath}/user/login",
-                url:"http://192.168.1.103:8081/ForairAcademy/user/login",
+                url:"${pageContext.request.contextPath}/user/login",
+              //  url:"http://192.168.1.103:8081/ForairAcademy/user/login",
                 method:"post",
                 data:jsonValue,
                 contentType:"application/json",

@@ -16,27 +16,6 @@
         <param-value>classpath:spring-config.xml</param-value>
     </context-param>
 
-    <!-- 配置log4j监听器和过滤器 -->
-    <!-- 默认在class类路径下，不需要额外配置引用 ，如果更改到其他地方，则需配置 -->
-    <!-- <context-param>
-         <param-name>log4jConfiguration</param-name>
-         <param-value>classpath:log4j2.xml</param-value>
-     </context-param> -->
-    <listener>
-        <listener-class>org.apache.logging.log4j.web.Log4jServletContextListener</listener-class>
-    </listener>
-    <filter>
-        <filter-name>log4jServletFilter</filter-name>
-        <filter-class>org.apache.logging.log4j.web.Log4jServletFilter</filter-class>
-    </filter>
-    <filter-mapping>
-        <filter-name>log4jServletFilter</filter-name>
-        <url-pattern>/*</url-pattern>
-        <dispatcher>REQUEST</dispatcher>
-        <dispatcher>FORWARD</dispatcher>
-        <dispatcher>INCLUDE</dispatcher>
-        <dispatcher>ERROR</dispatcher>
-    </filter-mapping>
 
     <!--    2，springmvc的前端控制器，拦截所有请求    -->
     <servlet>

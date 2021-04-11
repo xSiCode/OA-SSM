@@ -17,6 +17,7 @@ index 2021-3-31
 --%>
 <br>
 <a href="Testajax.jsp" >Testajax.jsp</a>
+<a href="getUsersList.jsp" >getUsersList.jsp</a>
 </body>
 
 </html>

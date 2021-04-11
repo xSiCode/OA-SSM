@@ -5,68 +5,87 @@
        `user_id`,`user_password`,`user_role`,`user_name`,`user_tel`,
        `user_email`,`user_sex`,`user_birth`,`user_id_card`
     </sql>
+    <sql id="NoId_Column_List">
+       `user_password`,`user_role`,`user_name`,`user_tel`,
+       `user_email`,`user_sex`,`user_birth`,`user_id_card`
+    </sql>
 
-    <select id="login"  resultType="com.th.bean.User" >
-        select <include refid="Base_Column_List" />
+    <select id="login" resultType="com.th.bean.User">
+        select
+        <include refid="Base_Column_List"/>
         from `t_user`
         where `user_id`=#{userId}
-            AND `user_password`=#{userPassword}
-            AND	`user_role`=#{userRole};
+        AND `user_password`=#{userPassword}
+        AND `user_role`=#{userRole};
     </select>
 
     <select id="selectByUserId" resultType="com.th.bean.User">
-        select <include refid="Base_Column_List" />
+        select
+        <include refid="Base_Column_List"/>
         from `t_user`
         where user_id =#{id}
 
     </select>
+    <select id="selectByUserName" resultType="com.th.bean.User">
+        select
+        <include refid="Base_Column_List"/>
+        from `t_user`
+        where user_name =#{name}
+
+    </select>
 
     <select id="selectUsersList" resultType="com.th.bean.User">
-        select <include refid="Base_Column_List" />
+        select
+        <include refid="Base_Column_List"/>
         from `t_user`
     </select>
 
     <insert id="insertUser" useGeneratedKeys="true" keyProperty="userId">
-        insert into `t_user`( <include refid="Base_Column_List" />  )
+        insert into `t_user`(
+        <include refid="Base_Column_List"/>
+        )
         values ( #{ userId }, #{ userPassword }, #{ userRole}, #{ userName}, #{ userTel},
         #{userEmail }, #{userSex }, #{ userBirth}, #{ userIdCard })
     </insert>
 
+<!-- useGeneratedKeys： 是否自动生成主键，默认false keyProperty :返回的主键值赋给哪个属性
+        keyColumn： 数据库中的自增主键的列名，默认是数据库表的第一列。当主键列不是表中的第一列的时候需要设置     -->
     <insert id="insertUsers" useGeneratedKeys="true" keyProperty="userId">
-        insert into `t_user`( <include refid="Base_Column_List" />  )
+        insert into `t_user`(
+        <include refid="NoId_Column_List"/>
+        )
         values
         <foreach collection="users" item="user" separator=",">
-            ( #{ userId }, #{ userPassword }, #{ userRole}, #{ userName}, #{ userTel},
-            #{userEmail }, #{userSex }, #{ userBirth}, #{ userIdCard })
+            (#{user.userPassword}, #{ user.userRole}, #{ user.userName}, #{ user.userTel},
+            #{user.userEmail }, #{user.userSex }, #{ user.userBirth}, #{ user.userIdCard })
         </foreach>
     </insert>
-<!--
-SELECT * FROM `oa-forairacademy`.t_user;
-#t_user
--     //登录功能，参数只有三个
--     USER login(@Param("userId")INTEGER userId,
--                @Param("userPassword")STRING userPassword,
--                @Param("userRole") STRING userRole);
-select * from `t_user` where `user_id`=1001 AND
-        	`user_password`='112546' AND	`user_role`='A';
+    <!--
+    SELECT * FROM `oa-forairacademy`.t_user;
+    #t_user
+    -     //登录功能，参数只有三个
+    -     USER login(@Param("userId")INTEGER userId,
+    -                @Param("userPassword")STRING userPassword,
+    -                @Param("userRole") STRING userRole);
+    select * from `t_user` where `user_id`=1001 AND
+                `user_password`='112546' AND	`user_role`='A';
 
--     //用户信息完善 或 修改信息，参数有9个，是个USER
--     USER updateInfo(USER USER);
-UPDATE `t_user`
-SET
-`user_id`=9999,
-`user_password` = 'xiugaimima',
-`user_role` = 'a',
-`user_name` = '杨明天发',
-`user_tel` = '15114049298',
-`user_email` = 'xsicod@outlook.com',
-`user_sex` = '男',
-`user_birth` ='1991-11-23',
-`user_id_card` ='511529199711185614'
-WHERE `user_id` = 1001;
+    -     //用户信息完善 或 修改信息，参数有9个，是个USER
+    -     USER updateInfo(USER USER);
+    UPDATE `t_user`
+    SET
+    `user_id`=9999,
+    `user_password` = 'xiugaimima',
+    `user_role` = 'a',
+    `user_name` = '杨明天发',
+    `user_tel` = '15114049298',
+    `user_email` = 'xsicod@outlook.com',
+    `user_sex` = '男',
+    `user_birth` ='1991-11-23',
+    `user_id_card` ='511529199711185614'
+    WHERE `user_id` = 1001;
 
--->
-
+    -->
 
 
 </mapper>

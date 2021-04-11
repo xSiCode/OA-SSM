@@ -10,12 +10,9 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import sun.text.resources.FormatData;
-
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -86,6 +83,7 @@ public class UserDaoTest {
                 "杨测试","15114049298", "xsicode@qq.com",
                 "男", localDate, "511529199711184514");
         int i=userDao.insertUser(user);
+        user.getUserId();
         System.out.println(i);
     }
 
@@ -101,15 +99,14 @@ public class UserDaoTest {
         String tel="";
         String email="";
         String sex="";
-        //处理日期
-        LocalDate localDate=null;
+        LocalDate localDate=null;        //处理日期
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         String birth="";
-        String idcard="";
-
-
-        User user =new User();
-        for(int i=1000;i<1999;i++){
+        String idCard="";
+        //存储user列表
+        List<User> users= new ArrayList<User>();
+        User aNewUser=null; //用于list 集合添加元素使用，这里不用 依赖注入的user
+        for(int i=0;i<100;i++){
             //user  9个属性
             // ID 不用，使用自增
             password= RandomValueUtil.getPassword();
@@ -118,26 +115,22 @@ public class UserDaoTest {
             tel=RandomValueUtil.getTel();
             email=RandomValueUtil.getEmail();
             sex=RandomValueUtil.getSex();
-            //处理日期
             birth=RandomValueUtil.getBirth();  // string: 1997-11-08
-            localDate= (LocalDate) formatter.parse(birth);  // localDate : 1997-11-05
-            idcard=RandomValueUtil.getIdCard(birth,sex);
+            localDate= LocalDate.parse(birth,formatter);  // localDate : 1997-11-05
+            idCard=RandomValueUtil.getIdCard(birth,sex);
 
-            //
-            user.setUserId(i);
-            user.setUserPassword(password);
-            user.setUserRole(role);
-            user.setUserName(name);
-            user.setUserTel(tel);
-            user.setUserEmail(email);
-            user.setUserSex(sex);
-            //日期：  string ---> localDate
-            user.setUserBirth(localDate);
-            user.setUserIdCard(idcard);
-            //
-            System.out.println(user);
-
+            aNewUser = new User();
+            aNewUser.setUserPassword(password);
+            aNewUser.setUserRole(role);
+            aNewUser.setUserName(name);
+            aNewUser.setUserTel(tel);
+            aNewUser.setUserEmail(email);
+            aNewUser.setUserSex(sex);
+            aNewUser.setUserBirth(localDate);  //日期：  string ---> localDate
+            aNewUser.setUserIdCard(idCard);
+             users.add(aNewUser);  //list集合每次添加的只是对象的引用值，而非堆空间的实际值
         }
-
+        int i = userDao.insertUsers(users);
+        System.out.println(i);
     }
 }

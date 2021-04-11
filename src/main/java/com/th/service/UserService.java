@@ -2,6 +2,8 @@ package com.th.service;
 
 import com.th.bean.User;
 
+import java.util.List;
+
 /**
  * @Class : User
  * @Describe :
@@ -11,6 +13,10 @@ import com.th.bean.User;
  */
 public interface UserService {
     public User userLogin(Integer id, String password, String role);
+
+    public List<User> getUsersList();
+
+    public List<User> getUserByIdOrName(String idOrName);
 
 
 }

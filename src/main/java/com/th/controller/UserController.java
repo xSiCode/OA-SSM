@@ -1,5 +1,7 @@
 package com.th.controller;
 
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import com.th.bean.User;
 import com.th.service.UserService;
 import com.th.utils.ResponseData;
@@ -8,6 +10,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -31,17 +34,12 @@ public class UserController {
     @PostMapping("/user/login")
     @ResponseBody
     public ResponseData login(@RequestBody Map<String,Object> userMap , HttpServletResponse response){
-        System.out.println("userService 走到 这一步了");
-
         response.setHeader("Access-Control-Allow-Origin", "*");
         response.setHeader("Access-Control-Allow-Methods", "POST, GET, PUT, OPTIONS, DELETE");
-
 
         Integer id =Integer.parseInt(String.valueOf(userMap.get("userId")));
         String password=String.valueOf(userMap.get("userPassword"));
         String role = String.valueOf(userMap.get("userRole"));
-
-
 
         user = userService.userLogin(id, password, role);
         System.out.println(user);
@@ -54,15 +52,34 @@ public class UserController {
         }
 
     }
-//    @PostMapping("/user/login")
-//    @ResponseBody
-//    public ResponseData login( HttpServletResponse response){
-//        System.out.println("userService 走到 这一步了");
-//
-//        response.setHeader("Access-Control-Allow-Origin", "*");
-//        response.setHeader("Access-Control-Allow-Methods", "POST, GET, PUT, OPTIONS, DELETE");
-//        User user= new User();
-//        return ResponseData.SUCCESS().extendData("userInfo",user);
-//    }
+
+    @PostMapping("/user/getUsersList")
+    @ResponseBody
+    public ResponseData getUsersList(@RequestBody Map<String,Object> map , HttpServletResponse response){
+        response.setHeader("Access-Control-Allow-Origin", "*");
+        response.setHeader("Access-Control-Allow-Methods", "POST, GET, PUT, OPTIONS, DELETE");
+
+        PageHelper.startPage(  (int)map.get("currentPage"),8);
+        List<User> users = userService.getUsersList();
+
+        PageInfo page= new PageInfo(users,8);
+        return ResponseData.SUCCESS().extendData("usersListPageInfo",page);
+    }
+
+
+    @PostMapping("/user/getUserIdOrNameLike")
+    @ResponseBody
+    public ResponseData getUserNameLike(@RequestBody Map<String,Object> map , HttpServletResponse response){
+        response.setHeader("Access-Control-Allow-Origin", "*");
+        response.setHeader("Access-Control-Allow-Methods", "POST, GET, PUT, OPTIONS, DELETE");
+
+        userService.getUserByIdOrName(  (String) map.get("searchUserIdOrNameLike")  );
+
+        PageHelper.startPage( 8);
+        List<User> users = userService.getUsersList();
+
+        PageInfo page= new PageInfo(users,8);
+        return ResponseData.SUCCESS().extendData("usersListPageInfo",page);
+    }
 
 }

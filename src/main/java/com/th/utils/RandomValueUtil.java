@@ -96,7 +96,7 @@ public class RandomValueUtil {
      * 返回随机邮箱
      */
     public static String getEmail() {
-        int length=getNum(12,20);
+        int length=getNum(6,12);
         StringBuffer sb = new StringBuffer();
         for (int i = 0; i < length; i++) {
             int number = (int)(Math.random()*base.length());
