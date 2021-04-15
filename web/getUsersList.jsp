@@ -40,7 +40,7 @@
 
         $("#getUserNameLike").click(function ( ){
             var user={
-                "searchUserIdOrNameLike":"杨",
+                "searchUserIdOrNameLike":"1444",
             };
             var jsonValue=JSON.stringify(user);
             $.ajax({
@@ -65,9 +65,8 @@
 </script>
 <body>
 <br>
-<input type="button" value="----getUsersList" id="getUsersList" >
-<input type="button" value="----getUserNameLike" id="getUserNameLike" >
-
+<button id="getUserNameLike">getUserNameLike</button>
+<button id="getUsersList">getUsersList</button>
 </body>
 
 </html>

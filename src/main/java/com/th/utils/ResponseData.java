@@ -53,7 +53,9 @@ public class ResponseData {
         return new ResponseData(0, "访问失败");
     }
 
-
+    public static ResponseData ERROR_PARAMETER() {
+        return new ResponseData(400, "前端传入参数错误,或服务器错误");
+    }
 
 /*
     //以下状态码 不常用

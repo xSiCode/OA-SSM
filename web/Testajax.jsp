@@ -195,10 +195,7 @@
 
 </script>
 <body>
-index 2021-3-31
-<%--        开头如果加了斜杆，路径就不对了
---%>
-<br>
+
 <a href="user/loginJsonVoid" >loginJsonVoid</a>
 <br>
 <input type="button" value="传单个参数" id="btn_json_1" >

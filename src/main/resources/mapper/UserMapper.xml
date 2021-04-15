@@ -23,14 +23,14 @@
         select
         <include refid="Base_Column_List"/>
         from `t_user`
-        where user_id =#{id}
+        where user_id like   CONCAT('%',#{id},'%')
 
     </select>
-    <select id="selectByUserName" resultType="com.th.bean.User">
+    <select id="selectByUserNameLike" resultType="com.th.bean.User">
         select
         <include refid="Base_Column_List"/>
         from `t_user`
-        where user_name =#{name}
+        where user_name like "%" #{name} "%"
 
     </select>
 
@@ -39,8 +39,8 @@
         <include refid="Base_Column_List"/>
         from `t_user`
     </select>
-
-    <insert id="insertUser" useGeneratedKeys="true" keyProperty="userId">
+<!--                     使用自增主键的策略，将获取到的值交给 这个属性-->
+    <insert id="insert" useGeneratedKeys="true" keyProperty="userId">
         insert into `t_user`(
         <include refid="Base_Column_List"/>
         )
@@ -48,6 +48,20 @@
         #{userEmail }, #{userSex }, #{ userBirth}, #{ userIdCard })
     </insert>
 
+
+    <select id="selectByKey" resultType="com.th.bean.User">
+        select <include refid="Base_Column_List"/>
+        from `t_user`
+        where
+        `user_id` like concat('%',#{key},'%')
+        or user_role like concat('%',#{key},'%')
+        or user_name like concat('%',#{key} ,'%')
+        or user_tel like concat('%',#{key}  ,'%')
+        or user_email like concat('%',#{key}  ,'%')
+        or user_sex like concat('%', #{key} ,'%')
+        or user_birth  like binary concat('%',#{key} ,'%')
+        or user_id_card like concat('%',#{key}  ,'%')
+    </select>
 <!-- useGeneratedKeys： 是否自动生成主键，默认false keyProperty :返回的主键值赋给哪个属性
         keyColumn： 数据库中的自增主键的列名，默认是数据库表的第一列。当主键列不是表中的第一列的时候需要设置     -->
     <insert id="insertUsers" useGeneratedKeys="true" keyProperty="userId">
@@ -60,6 +74,65 @@
             #{user.userEmail }, #{user.userSex }, #{ user.userBirth}, #{ user.userIdCard })
         </foreach>
     </insert>
+
+    <insert id="insertBatch" useGeneratedKeys="true" keyProperty="userId">
+        insert into `t_user`(
+        <include refid="NoId_Column_List"/>
+        )
+        values
+        <foreach collection="users" item="user" separator=",">
+            (#{user.userPassword}, #{ user.userRole}, #{ user.userName}, #{ user.userTel},
+            #{user.userEmail }, #{user.userSex }, #{ user.userBirth}, #{ user.userIdCard })
+        </foreach>
+    </insert>
+
+    <update id="update">
+        update `t_user`
+        <set>
+            <if test="user.userPassword!=null">
+                user_password=#{user.userPassword},
+            </if>
+            <if test="user.userRole !=null">
+                user_role=#{user.userRole},
+            </if>
+            <if test="user.userName!=null">
+                user_name =#{user.userName},
+            </if>
+            <if test="user.userTel!=null">
+                user_tel=#{user.userTel},
+            </if>
+            <if test="user.userEmail!=null">
+                user_email=#{user.userEmail},
+            </if>
+            <if test="user.userSex !=null">
+                user_sex=#{user.userSex},
+            </if>
+            <if test="user.userBirth!=null">
+                user_birth=#{user.userBirth},
+            </if>
+            <if test="user.userIdCard">
+                user_id_card=#{user.userIdCard}
+            </if>
+        </set>
+        where `user_id`=#{user.userId}
+    </update>
+
+    <delete id="deleteBatch" >
+        delete from `t_user` where `user_id` in 
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+
+
+
+
+
+
+
+
+
     <!--
     SELECT * FROM `oa-forairacademy`.t_user;
     #t_user

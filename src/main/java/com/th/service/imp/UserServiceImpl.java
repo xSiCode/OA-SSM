@@ -7,6 +7,7 @@ import com.th.utils.DataVerification;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -32,23 +33,71 @@ public class UserServiceImpl implements UserService {
     @Autowired(required = false)
     private UserDao userDao;
 
+    @Autowired
+    private User user;
+
+    @Override
     public User userLogin(Integer id, String password, String role) {
+
         return  userDao.login(id,password, role);
     }
 
+    @Override
     public List<User> getUsersList(){
-        return userDao.selectUsersList();
+        return  userDao.selectUsersList();
     }
 
     @Override
     public List<User> getUserByIdOrName(String idOrName) {
         boolean idname = DataVerification.IfStrParseInt(idOrName);  //true  能转为int
+        List<User> users=new ArrayList<>() ;
         if(idname ==true){
-            userDao.selectByUserId(   Integer.parseInt(idOrName)   );
+             users = userDao.selectByUserId(Integer.parseInt(idOrName));
         }else {
-            userDao.selectByUserName( idOrName);
+            users = userDao.selectByUserNameLike(idOrName);
         }
-        return null;
+        return  users;
+
+    }
+// = = = = = = = =  = = = = = = = =  = = = = = = = =  = = = = = = = =
+    @Override
+    public List<User> selectByKey(String key) {
+        if(key==null || key.length() <= 0){
+             return null;
+        }
+        List<User> users=userDao.selectByKey(key);
+        return users;
+    }
+
+    @Override
+    public int insert(User user) {
+        if(user==null){
+            return -1;
+        }
+        int insertCount = userDao.insert(user);
+        if(insertCount==0){
+            return -1;
+        }
+        return user.getUserId();  //0:fail    >0:ok
+    }
+
+    @Override
+    public int update(User user)  {
+        if(user==null){
+
+            return -1;
+        }
+        int i = userDao.update(user) ;
+        return i;
+    }
+
+    @Override
+    public int deleteBatch(List<Integer> ids) {
+       if(ids ==null){
+           return -1;
+       }
+       int i=userDao.deleteBatch(ids);
+        return i;
     }
 
 
