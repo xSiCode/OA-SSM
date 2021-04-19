@@ -47,18 +47,7 @@ public class UserServiceImpl implements UserService {
         return  userDao.selectUsersList();
     }
 
-    @Override
-    public List<User> getUserByIdOrName(String idOrName) {
-        boolean idname = DataVerification.IfStrParseInt(idOrName);  //true  能转为int
-        List<User> users=new ArrayList<>() ;
-        if(idname ==true){
-             users = userDao.selectByUserId(Integer.parseInt(idOrName));
-        }else {
-            users = userDao.selectByUserNameLike(idOrName);
-        }
-        return  users;
 
-    }
 // = = = = = = = =  = = = = = = = =  = = = = = = = =  = = = = = = = =
     @Override
     public List<User> selectByKey(String key) {

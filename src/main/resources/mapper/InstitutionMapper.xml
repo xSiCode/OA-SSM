@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.th.dao.InstitutionDao">
+    <select id="selectByKey" resultType="com.th.bean.Institution">
+        select institution_id ,institution_name from `t_role_institution`
+        where institution_id =#{institutionId}
+    </select>
+    <select id="selectInstitutionList" resultType="com.th.bean.Institution">
+        select institution_id ,institution_name from `t_role_institution`
+    </select>
+</mapper>

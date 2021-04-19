@@ -177,4 +177,11 @@ public class RandomValueUtil {
         }
         return ""+idCard18[result % 11];
     }
+
+    // 职位-机构随机生成
+    public static int getDutyInstitution(int start,int end){
+        // [20-27)
+        int dutyInstitutionId = getNum(start,end);
+        return dutyInstitutionId;
+    }
 }

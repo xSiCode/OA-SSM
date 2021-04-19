@@ -18,7 +18,6 @@ public interface UserService {
 
     public User userLogin(Integer id, String password, String role);
     public List<User> getUsersList();
-    public List<User> getUserByIdOrName(String idOrName);
 
     //
     List<User> selectByKey(String key);

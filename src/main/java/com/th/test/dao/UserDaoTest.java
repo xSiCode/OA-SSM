@@ -10,7 +10,6 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.validation.BindingResult;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -67,26 +66,8 @@ public class UserDaoTest {
         }
     }
 
-    @Test
-    public void selectById(){
-        List<User> users=userDao.selectByUserId( 1111  );
-        List<User> users2=userDao.selectByUserId( 2222  );
 
-        System.out.println(users);
-        System.out.println(users2);
-    }
 
-    @Test
-    public void selectByUserNameLike(){
-        List<User> users = userDao.selectByUserNameLike("杨");
-        System.out.println(users);
-    }
-
-    @Test
-    public void selectUsersList(){
-        List<User> users=userDao.selectUsersList();
-        System.out.println(users);
-    }
     @Test
     public void insertUser(){
         LocalDate localDate=  LocalDate.of(1997,11,8);
@@ -173,5 +154,11 @@ public class UserDaoTest {
     public void selectByKeys(){
         List<User> users = userDao.selectByKey( "1999");
         System.out.println(users);
+    }
+
+    @Test
+    public void insert_user_into_dutyInstitution(){
+        int dutyInstitution = RandomValueUtil.getDutyInstitution(20, 27);
+
     }
 }

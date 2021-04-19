@@ -34,14 +34,6 @@ public class UserServiceTest {
     @Autowired
     UserService userService;
 
-    @Test
-    public void getUserByIdOrName(){
-        List<User> user = userService.getUserByIdOrName("杨");
-        System.out.println(user);
-
-        List<User> users = userService.getUserByIdOrName("2000");
-        System.out.println(users);
-    }
 
     @Test
     public void selectByKey(){
