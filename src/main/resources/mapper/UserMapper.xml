@@ -3,11 +3,11 @@
 <mapper namespace="com.th.dao.UserDao">
     <sql id="Base_Column_List">
        `user_id`,`user_password`,`user_role`,`user_name`,`user_tel`,
-       `user_email`,`user_sex`,`user_birth`,`user_id_card`
+       `user_email`,`user_sex`,`user_birth`,`user_id_card`, `user_duty_institution_id`
     </sql>
     <sql id="NoId_Column_List">
        `user_password`,`user_role`,`user_name`,`user_tel`,
-       `user_email`,`user_sex`,`user_birth`,`user_id_card`
+       `user_email`,`user_sex`,`user_birth`,`user_id_card`,`user_duty_institution_id`
     </sql>
 
     <select id="login" resultType="com.th.bean.User">
@@ -31,20 +31,19 @@
         <include refid="Base_Column_List"/>
         )
         values ( #{ userId }, #{ userPassword }, #{ userRole}, #{ userName}, #{ userTel},
-        #{userEmail }, #{userSex }, #{ userBirth}, #{ userIdCard })
+        #{userEmail }, #{userSex }, #{ userBirth}, #{ userIdCard },#{userDutyInstitutionId.id})
     </insert>
 
+    <resultMap id="getUsersByKes" type="com.th.bean.User">
+        <id column="user_id" property="userId"></id>
+    </resultMap>
 
     <select id="selectByKey" resultType="com.th.bean.User">
         select <include refid="Base_Column_List"/>
         from `t_user`
         where
         `user_id` like concat('%',#{key},'%')
-        or user_role like concat('%',#{key},'%')
         or user_name like concat('%',#{key} ,'%')
-        or user_tel like concat('%',#{key}  ,'%')
-        or user_email like concat('%',#{key}  ,'%')
-        or user_sex like concat('%', #{key} ,'%')
         or user_birth  like binary concat('%',#{key} ,'%')
         or user_id_card like concat('%',#{key}  ,'%')
     </select>
@@ -57,7 +56,8 @@
         values
         <foreach collection="users" item="user" separator=",">
             (#{user.userPassword}, #{ user.userRole}, #{ user.userName}, #{ user.userTel},
-            #{user.userEmail }, #{user.userSex }, #{ user.userBirth}, #{ user.userIdCard })
+            #{user.userEmail }, #{user.userSex }, #{ user.userBirth},
+             #{ user.userIdCard },#{user.userDutyInstitutionId.id} )
         </foreach>
     </insert>
 
@@ -68,7 +68,8 @@
         values
         <foreach collection="users" item="user" separator=",">
             (#{user.userPassword}, #{ user.userRole}, #{ user.userName}, #{ user.userTel},
-            #{user.userEmail }, #{user.userSex }, #{ user.userBirth}, #{ user.userIdCard })
+            #{user.userEmail }, #{user.userSex }, #{ user.userBirth},
+             #{ user.userIdCard },#{user.userDutyInstitutionId.id})
         </foreach>
     </insert>
 
@@ -98,6 +99,9 @@
             </if>
             <if test="user.userIdCard">
                 user_id_card=#{user.userIdCard}
+            </if>
+            <if test="user.userDutyInstitutionId">
+                `user_duty_institution_id`=#{user.userDutyInstitutionId.id}
             </if>
         </set>
         where `user_id`=#{user.userId}

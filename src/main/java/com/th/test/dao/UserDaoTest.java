@@ -38,6 +38,8 @@ public class UserDaoTest {
     @Autowired
     UserService userService;
 
+    @Autowired
+    DutyInstitution dutyInstitution;
     //jdk8 date test
 
 
@@ -71,9 +73,10 @@ public class UserDaoTest {
     @Test
     public void insertUser(){
         LocalDate localDate=  LocalDate.of(1997,11,8);
+        DutyInstitution dutyInstitution=new DutyInstitution(22);
         User user=new User(null,"234567890","T",
                 "杨测试","15114049298", "xsicode@qq.com",
-                "男", localDate, "511529199711184514");
+                "男", localDate, "511529199711184514",dutyInstitution);
 
 
         int i=userDao.insert(user);
@@ -152,7 +155,7 @@ public class UserDaoTest {
     }
     @Test
     public void selectByKeys(){
-        List<User> users = userDao.selectByKey( "1999");
+        List<User> users = userDao.selectByKey( "1000");
         System.out.println(users);
     }
 
@@ -160,5 +163,19 @@ public class UserDaoTest {
     public void insert_user_into_dutyInstitution(){
         int dutyInstitution = RandomValueUtil.getDutyInstitution(20, 27);
 
+    }
+
+    @Test
+    public void updateOnlyDutyInstitution() throws  Exception{
+        int random;
+        int updateCount=0;
+        for(int i=1013;i<2459;i++){
+            random=RandomValueUtil.getDutyInstitution(20,26);
+            user.setUserId(i);
+            user.setDutyInstitution( new DutyInstitution(random));
+            updateCount +=userDao.update(user);
+
+        }
+        System.out.println(updateCount);
     }
 }

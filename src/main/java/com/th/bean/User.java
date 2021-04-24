@@ -61,6 +61,8 @@ public class User {
     @Pattern(regexp = "^\\d{15}|^\\d{17}([0-9]|X|x)$",message = "身份证不对哦")
     private String userIdCard;
 
+    private DutyInstitution userDutyInstitutionId;
+
     @Autowired
     public User() {
     }
@@ -82,6 +84,20 @@ public class User {
         this.userSex = userSex;
         this.userBirth = userBirth;
         this.userIdCard = userIdCard;
+    }
+    public User(Integer userId, String userPassword, String userRole, String userName, String userTel,
+                String userEmail, String userSex, LocalDate userBirth,
+                String userIdCard,DutyInstitution dutyInstitution) {
+        this.userId = userId;
+        this.userPassword = userPassword;
+        this.userRole = userRole;
+        this.userName = userName;
+        this.userTel = userTel;
+        this.userEmail = userEmail;
+        this.userSex = userSex;
+        this.userBirth = userBirth;
+        this.userIdCard = userIdCard;
+        this.userDutyInstitutionId=dutyInstitution;
     }
 
     public Integer getUserId() {
@@ -156,6 +172,14 @@ public class User {
         this.userIdCard = userIdCard;
     }
 
+    public DutyInstitution getDutyInstitution() {
+        return userDutyInstitutionId;
+    }
+
+    public void setDutyInstitution(DutyInstitution dutyInstitution) {
+        this.userDutyInstitutionId = dutyInstitution;
+    }
+
     @Override
     public String toString() {
         return "User{" +
@@ -168,6 +192,7 @@ public class User {
                 ", userSex='" + userSex + '\'' +
                 ", userBirth=" + userBirth +
                 ", userIdCard='" + userIdCard + '\'' +
+                ", dutyInstitution=" + userDutyInstitutionId +
                 '}';
     }
 }
