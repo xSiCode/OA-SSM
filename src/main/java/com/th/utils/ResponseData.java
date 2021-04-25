@@ -11,9 +11,9 @@ import java.util.Map;
  * @Version : 1.0
  */
 public class ResponseData {
-    private final int code;
-    private final String message;
-    private final Map<String, Object> data = new HashMap<String, Object>();
+    private  int code;
+    private  String message;
+    private  Map<String, Object> data = new HashMap<String, Object>();
 
     //属性是 final  不能有空参构造器
 
@@ -36,6 +36,18 @@ public class ResponseData {
         return data;
     }
 
+    public void setCode(int code) {
+        this.code = code;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
+    public void setData(Map<String, Object> data) {
+        this.data = data;
+    }
+
     //扩展返回的json 数据，
 
     public ResponseData extendData(String key, Object value) {
@@ -46,17 +58,24 @@ public class ResponseData {
     //返回状态码 和信息
 
     public static ResponseData SUCCESS() {
-        return new ResponseData(200, "访问成功");
+        return new ResponseData(200, "返回成功");
+    }
+    public static ResponseData SUCCESS(int code,String message){
+        return new ResponseData((code), message);
     }
 
+    public static ResponseData FAIL() {
+        return new ResponseData(0, "前端传入参数不符");
+    }
+    public static ResponseData FAIL(int code,String message){
+        return new ResponseData((code), message);
+    }
     public static ResponseData ERROR() {
-        return new ResponseData(0, "访问失败");
+        return new ResponseData(400, "后端代码错误");
     }
-
-    public static ResponseData ERROR_PARAMETER() {
-        return new ResponseData(400, "前端传入参数错误,或服务器错误");
+    public static ResponseData ERROR(int code,String message){
+        return new ResponseData((code), message);
     }
-
 /*
     //以下状态码 不常用
 

@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -33,7 +34,6 @@ import java.util.Map;
  * @Version : 1.0
  */
 
-@CrossOrigin(origins = "*")
 @Controller
 public class UserController {
 
@@ -46,34 +46,37 @@ public class UserController {
 
     @PostMapping("/user/login")
     @ResponseBody
-    public ResponseData login(@RequestBody Map<String,Object> userMap , HttpServletResponse response){
-        response.setHeader("Access-Control-Allow-Origin", "*");
-        response.setHeader("Access-Control-Allow-Methods", "POST, GET, PUT, OPTIONS, DELETE");
-
+    public ResponseData login(@RequestBody Map<String,Object> userMap ){
+        HttpSession httpSession= null;
         Integer id =Integer.parseInt(String.valueOf(userMap.get("userId")));
         String password=String.valueOf(userMap.get("userPassword"));
         String role = String.valueOf(userMap.get("userRole"));
 
-        user = userService.userLogin(id, password, role);
-        System.out.println(user);
-        if(user !=null){
-            System.out.println("登录成功");
-            return ResponseData.SUCCESS().extendData("userInfo",user);
-        }else {
-            System.out.println("账号或密码错误");
+        try {
+            user = userService.userLogin(id, password, role);
+            if(user !=null){
+                System.out.println("登录成功");
+                httpSession.setAttribute("userId",id);
+                return ResponseData.SUCCESS().extendData("userInfo",user);
+            }else {
+                System.out.println("账号或密码错误");
+                return ResponseData.FAIL();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
             return ResponseData.ERROR();
         }
+
 
     }
 
     @PostMapping("/user/getUsersList")
     @ResponseBody
-    public ResponseData getUsersList(@RequestBody Map<String,Object> map , HttpServletResponse response){
-        response.setHeader("Access-Control-Allow-Origin", "*");
-        response.setHeader("Access-Control-Allow-Methods", "POST, GET, PUT, OPTIONS, DELETE");
+    public ResponseData getUsersList(@RequestBody Map<String,Object> map){
 
         PageHelper.startPage(  (int)map.get("currentPage"),8);
-        List<User> users = userService.getUsersList();
+       // List<User> users = userService.getUsersList();
+        List<User> users = userService.list();
 
         PageInfo page= new PageInfo(users,8);
         return ResponseData.SUCCESS().extendData("usersListPageInfo",page);
@@ -82,10 +85,7 @@ public class UserController {
 
     @PostMapping("user/selectByKey")
     @ResponseBody
-    public ResponseData selectBykey(@RequestBody Map<String,String> map, HttpServletResponse response){
-        response.setHeader("Access-Control-Allow-Origin", "*");
-        response.setHeader("Access-Control-Allow-Methods", "POST, GET, PUT, OPTIONS, DELETE");
-
+    public ResponseData selectBykey(@RequestBody Map<String,String> map){
         String searchKey=map.get("searchKey");
         Integer needPage= Integer.parseInt( map.get("needPage") );
 
@@ -97,9 +97,7 @@ public class UserController {
     }
     @PostMapping("user/insert")
     @ResponseBody
-    public ResponseData insert(@RequestBody Map<String,String> map, HttpServletResponse response) throws IOException {
-        response.setHeader("Access-Control-Allow-Origin", "*");
-        response.setHeader("Access-Control-Allow-Methods", "POST, GET, PUT, OPTIONS, DELETE");
+    public ResponseData insert(@RequestBody Map<String,String> map) throws IOException {
         //ObjectMapper  将传入的 json 字符串 自动转为 User对象
         ObjectMapper mapper = new ObjectMapper();
         //
@@ -117,9 +115,7 @@ public class UserController {
     }
     @PostMapping("user/update")
     @ResponseBody
-    public ResponseData update(@RequestBody Map<String,String> map, HttpServletResponse response) throws IOException {
-        response.setHeader("Access-Control-Allow-Origin", "*");
-        response.setHeader("Access-Control-Allow-Methods", "POST, GET, PUT, OPTIONS, DELETE");
+    public ResponseData update(@RequestBody Map<String,String> map) throws IOException {
 
             ObjectMapper mapper = new ObjectMapper();
             String dateStr= mapper.writeValueAsString(map);
@@ -134,9 +130,7 @@ public class UserController {
     }
     @PostMapping("user/deleteBatch")
     @ResponseBody
-    public ResponseData deleteBatch(@RequestBody Map<String,List<Integer> >  map_list, HttpServletResponse response) throws IOException {
-        response.setHeader("Access-Control-Allow-Origin", "*");
-        response.setHeader("Access-Control-Allow-Methods", "POST, GET, PUT, OPTIONS, DELETE");
+    public ResponseData deleteBatch(@RequestBody Map<String,List<Integer> >  map_list) throws IOException {
 
         System.out.println(map_list);
         ObjectMapper mapper=new ObjectMapper();

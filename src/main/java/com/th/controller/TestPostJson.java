@@ -22,7 +22,6 @@ import java.util.Map;
  * @Version : 1.0
  */
 
-@CrossOrigin(origins = "*")
 @Controller
 public class TestPostJson {
     @Autowired

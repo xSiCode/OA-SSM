@@ -1,5 +1,6 @@
 package com.th.dao;
 
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.th.bean.User;
 import org.apache.ibatis.annotations.Param;
 
@@ -12,7 +13,7 @@ import java.util.List;
  * @Date : 2021/3/27 22:23
  * @Version : 1.0
  */
-public interface UserDao {
+public interface UserDao extends BaseMapper<User> {
     //登录功能，参数只有三个   :A,T
     User login(@Param("userId") Integer userId, @Param("userPassword") String userPassword, @Param("userRole") String userRole);
 

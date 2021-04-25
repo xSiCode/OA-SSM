@@ -1,5 +1,6 @@
 package com.th.service;
 
+import com.baomidou.mybatisplus.extension.service.IService;
 import com.th.bean.User;
 
 import java.util.List;
@@ -14,7 +15,7 @@ import java.util.List;
 /*
 //具体的业务代码代码不应该写到控制器里，而是交给service负责实现。
 //        比如要验证一个用户名是否存在，应该在控制器里调用Service层的验证的方法，由service去验证用户名是否存在，*/
-public interface UserService {
+public interface UserService extends IService<User> {
 
     public User userLogin(Integer id, String password, String role);
     public List<User> getUsersList();

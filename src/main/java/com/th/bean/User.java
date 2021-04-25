@@ -1,5 +1,9 @@
 package com.th.bean;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -12,8 +16,10 @@ import javax.validation.constraints.Pattern;
 import java.time.LocalDate;
 
 @Component
+@TableName(value = "t_user")
 public class User {
 
+    @TableId(value = "user_id",type = IdType.NONE)
     @Pattern(regexp="(^[0-9]{4}$)" ,message="用户名长度只能是4位整数")
     private Integer userId;
 
@@ -144,6 +150,7 @@ public class User {
     public void setUserIdCard(String userIdCard) {
         this.userIdCard = userIdCard;
     }
+
 
 
     @Override

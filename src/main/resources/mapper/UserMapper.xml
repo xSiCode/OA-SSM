@@ -3,11 +3,11 @@
 <mapper namespace="com.th.dao.UserDao">
     <sql id="Base_Column_List">
        `user_id`,`user_password`,`user_role`,`user_name`,`user_tel`,
-       `user_email`,`user_sex`,`user_birth`,`user_id_card`, `user_duty_institution_id`
+       `user_email`,`user_sex`,`user_birth`,`user_id_card`, `user_organization_current_id`
     </sql>
     <sql id="NoId_Column_List">
        `user_password`,`user_role`,`user_name`,`user_tel`,
-       `user_email`,`user_sex`,`user_birth`,`user_id_card`,`user_duty_institution_id`
+       `user_email`,`user_sex`,`user_birth`,`user_id_card`,`user_organization_current_id`
     </sql>
 
     <select id="login" resultType="com.th.bean.User">

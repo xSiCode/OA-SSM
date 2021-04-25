@@ -156,21 +156,16 @@ public class UserDaoTest {
     }
 
     @Test
-    public void insert_user_into_dutyInstitution(){
-        int dutyInstitution = RandomValueUtil.getDutyInstitution(20, 27);
+    public void selectUsersList(){
 
+        List<User> users = userDao.selectUsersList();
+        System.out.println(users);
     }
-
     @Test
-    public void updateOnlyDutyInstitution() throws  Exception{
-        int random;
-        int updateCount=0;
-        for(int i=1013;i<2459;i++){
-            random=RandomValueUtil.getDutyInstitution(20,26);
-            user.setUserId(i);
-            updateCount +=userDao.update(user);
+    public void baseMapperSelectList(){
 
-        }
-        System.out.println(updateCount);
+        List<User> users = userDao.selectList(null);
+        System.out.println(users);
     }
+
 }

@@ -29,18 +29,23 @@
     </bean>
 
 <!--    3，配置和mybatis的整合-->
-    <bean  id="sqlSessionFactoryBean"  class="org.mybatis.spring.SqlSessionFactoryBean">
+<!--    <bean  id="sqlSessionFactoryBean"  class="org.mybatis.spring.SqlSessionFactoryBean">   配置mybatis-plus -->
+    <bean  id="sqlSessionFactoryBean"  class="com.baomidou.mybatisplus.extension.spring.MybatisSqlSessionFactoryBean">
 <!--        指定mybatis全局配置文件xml的位置-->
         <property name="configLocation" value="classpath:mybatis-config.xml"></property>
         <property name="dataSource" ref="pooledDataSource"></property>
 <!--        指定mybatis-mapper 文件具体实现的位置-->
         <property name="mapperLocations" value="classpath:mapper/*.xml"></property>
+        <property name="globalConfig" ref="globalConfig"></property>
     </bean>
 
 <!--    4,配置扫描器，将mybatis接口的实现加入到ioc容器中-->
     <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
 <!--        扫描所有dao接口的实现，加入到ioc容器中-->
         <property name="basePackage" value="com/th/dao"></property>
+    </bean>
+    <bean id="globalConfig" class="com.baomidou.mybatisplus.core.config.GlobalConfig" >
+
     </bean>
 
 <!--    5,事务控制的配置-->

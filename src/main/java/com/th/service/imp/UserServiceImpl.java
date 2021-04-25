@@ -1,5 +1,6 @@
 package com.th.service.imp;
 
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.th.bean.User;
 import com.th.dao.UserDao;
 import com.th.service.UserService;
@@ -23,7 +24,7 @@ import java.util.List;
         的三个不同层次，其目的都是控制反转，将Java对象交给Spring容器创建。@Service注解是标注在实现类上的
 */
 @Service
-public class UserServiceImpl implements UserService {
+public class UserServiceImpl extends ServiceImpl<UserDao,User> implements UserService {
 
     /*
     * mybatis通过JDK的动态代理方式，在启动加载配置文件时，根据配置mapper的xml去生成Dao的实现。
