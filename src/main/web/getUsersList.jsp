@@ -67,6 +67,10 @@
 <br>
 <button id="getUserNameLike">getUserNameLike</button>
 <button id="getUsersList">getUsersList</button>
+<form action="user/b" method="get">
+    <input type="submit" value="提交" />
+</form>
+
 </body>
 
 </html>

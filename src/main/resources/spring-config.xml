@@ -18,7 +18,7 @@
         <context:exclude-filter type="annotation"  expression="org.springframework.stereotype.Controller"  />
         <context:exclude-filter type="annotation" expression="org.springframework.web.bind.annotation.RestController"/>
     </context:component-scan>
-
+    <context:component-scan base-package="com.th.dao"/>
 <!--    2，配置数据源-->
     <context:property-placeholder location="classpath:dbConfig.properties"></context:property-placeholder>
     <bean id="pooledDataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
@@ -32,10 +32,12 @@
 <!--    <bean  id="sqlSessionFactoryBean"  class="org.mybatis.spring.SqlSessionFactoryBean">   配置mybatis-plus -->
     <bean  id="sqlSessionFactoryBean"  class="com.baomidou.mybatisplus.extension.spring.MybatisSqlSessionFactoryBean">
 <!--        指定mybatis全局配置文件xml的位置-->
+<!--        花了一个晚上排错，这里必须 classpath-->
         <property name="configLocation" value="classpath:mybatis-config.xml"></property>
         <property name="dataSource" ref="pooledDataSource"></property>
-<!--        指定mybatis-mapper 文件具体实现的位置-->
-        <property name="mapperLocations" value="classpath:mapper/*.xml"></property>
+<!--&lt;!&ndash;        指定mybatis-mapper 文件具体实现的位置&ndash;&gt;-->
+<!--        <property name="mapperLocations" value="classpath:com/th/dao/mapper/*.xml"></property>-->
+        <property name="mapperLocations" value="classpath:com/th/dao/mapper/*.xml"></property>
         <property name="globalConfig" ref="globalConfig"></property>
     </bean>
 
