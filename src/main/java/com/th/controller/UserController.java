@@ -38,17 +38,7 @@ public class UserController {
         PageInfo page= new PageInfo(users,8);
         return ResponseData.SUCCESS().extendData("usersListPageInfo",page);
     }
-    @PostMapping("/a")
-    public ResponseData a(){
 
-        System.out.println("------------------------------------");
-        PageHelper.startPage(  3,8);
-        // List<User> users = userService.getUsersList();
-        List<User> users = userService.list();
-
-        PageInfo page= new PageInfo(users,8);
-        return ResponseData.SUCCESS().extendData("usersListPageInfo",page);
-    }
 
 }
 
