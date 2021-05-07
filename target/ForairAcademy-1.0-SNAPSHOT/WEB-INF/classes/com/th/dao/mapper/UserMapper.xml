@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.th.dao.UserMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.th.entity.User">
+        <id column="user_id" property="userId" />
+        <result column="user_password" property="userPassword" />
+        <result column="user_role" property="userRole" />
+        <result column="user_name" property="userName" />
+        <result column="user_tel" property="userTel" />
+        <result column="user_email" property="userEmail" />
+        <result column="user_sex" property="userSex" />
+        <result column="user_birth" property="userBirth" />
+        <result column="user_id_card" property="userIdCard" />
+        <result column="organization_id" property="organizationId" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        user_id, user_password, user_role, user_name, user_tel, user_email, user_sex, user_birth, user_id_card, organization_id
+    </sql>
+
+</mapper>
