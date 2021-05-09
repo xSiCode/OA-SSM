@@ -1,9 +1,16 @@
 package com.th.entity;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.IdType;
 import java.time.LocalDate;
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Component;
 
 import java.io.Serializable;
@@ -58,6 +65,12 @@ private static final long serialVersionUID=1L;
     /**
      * 出生日期范围和格式   1900-1-1  ~~~ 2100-1-1
      */
+    // 序列号 与反序列化 格式： “yyyy -MM -dd"
+    @JsonDeserialize(using = LocalDateDeserializer.class)
+    @JsonSerialize(using = LocalDateSerializer.class)
+    //json -> 对象  ； 对象到json
+    @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy-MM-dd", timezone = "GMT+8")
+    @DateTimeFormat(pattern = "yyyy-MM-dd ")
     private LocalDate userBirth;
 
     /**
@@ -169,19 +182,23 @@ private static final long serialVersionUID=1L;
         this.organizationId = organizationId;
     }
 
+    public static long getSerialVersionUID() {
+        return serialVersionUID;
+    }
+
     @Override
     public String toString() {
         return "User{" +
-        "userId=" + userId +
-        ", userPassword=" + userPassword +
-        ", userRole=" + userRole +
-        ", userName=" + userName +
-        ", userTel=" + userTel +
-        ", userEmail=" + userEmail +
-        ", userSex=" + userSex +
-        ", userBirth=" + userBirth +
-        ", userIdCard=" + userIdCard +
-        ", organizationId=" + organizationId +
-        "}";
+                "userId=" + userId +
+                ", userPassword='" + userPassword + '\'' +
+                ", userRole='" + userRole + '\'' +
+                ", userName='" + userName + '\'' +
+                ", userTel='" + userTel + '\'' +
+                ", userEmail='" + userEmail + '\'' +
+                ", userSex='" + userSex + '\'' +
+                ", userBirth=" + userBirth +
+                ", userIdCard='" + userIdCard + '\'' +
+                ", organizationId=" + organizationId +
+                '}';
     }
 }

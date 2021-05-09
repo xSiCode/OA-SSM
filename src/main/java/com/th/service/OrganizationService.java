@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.th.entity.User;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -17,16 +18,23 @@ import java.util.List;
 public interface OrganizationService extends IService<Organization> {
     //得到 树状的 组织结构  0 开始的 获取树状子路径
     List<Organization> listWithTree();
+    //得到 指定 树状的 子路径
+    List<Organization> listWithTreeById(Integer id);
 
     // 得到 当前 id  父路径 id串
-    List<Integer> listIdPaths(Integer organizationId);
+    List<Integer> listParentPathsById(Integer organizationId);
 
-    //得到当前 id 的 树状 父路径
-    List<Organization> listParentPath(Integer organizationId);
+    // 得到 当前 id  父路径 树状
+    List<Organization> listParentPathsWithTreeById(Integer organizationId);
 
-    //得到当前 id 的 树状 子路径
-    List<Organization> listChildrenPath(Integer organizationId);
+    // 得到 当前 id  父路径 拼接成字符串
+    String listParentPathsWithStringById(Integer organizationId);
 
-    //得到当前 id 下的 所有 用户
-    List<User> listUsers(Integer organizationId);
+
+    //得到 当前 id 对应的用户 ids,names
+    List<Map<Integer,String>> listUsersByOrganizationId(Integer organizationId);
+
+
+    //根据key ,查找Organization表 的名字
+    List<Organization> getOrganizationNameByKey(String key);
 }

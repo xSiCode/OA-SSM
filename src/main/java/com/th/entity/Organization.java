@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.stereotype.Component;
 
 import java.io.Serializable;
@@ -24,39 +25,26 @@ public class Organization implements Serializable {
 
 private static final long serialVersionUID=1L;
 
-    /**
-     * 当前机构/职位id    没再额外使用自增id    id值 全局唯一
-     */
     @TableId(value = "id", type = IdType.AUTO)
     private Integer id;
 
-    /**
-     * 上一级机构id
-     */
     private Integer pid;
 
-    /**
-     * 当前机构/职位等级
-     */
     private Integer level;
 
-    /**
-     * 当前机构/职位 名
-     */
     private String name;
 
     //当前职位id 下的 子路径
+    //使用@JsonIgnore注解，忽略此属性，前端不会拿到该属性
+    @JsonIgnore
     @TableField(exist = false)
     private List<Organization> children;
 
-    //当前id的完整 父路径
+    //当前职位id 对应的所有 用户id,用户名
+    //使用@JsonIgnore注解，忽略此属性，前端不会拿到该属性
+    @JsonIgnore
     @TableField(exist = false)
-    private List<Organization> parent;
-
-    //当前职位id 对应的 用户
-    @TableField(exist = false)
-    private List<User> users;
-
+    private Map<Integer,String> userId_userName;
 
     public Organization() {
     }
@@ -68,15 +56,26 @@ private static final long serialVersionUID=1L;
         this.name = name;
     }
 
-    public Organization(Integer id, Integer pid, Integer level, String name,
-                        List<Organization> children, List<Organization> parent, List<User> users) {
+    public Organization(Integer id, Integer pid, Integer level, String name, List<Organization> children) {
         this.id = id;
         this.pid = pid;
         this.level = level;
         this.name = name;
         this.children = children;
-        this.parent = parent;
-        this.users = users;
+    }
+
+    public Organization(Integer id, Integer pid, Integer level, String name,
+                        List<Organization> children, Map<Integer, String> userId_userName) {
+        this.id = id;
+        this.pid = pid;
+        this.level = level;
+        this.name = name;
+        this.children = children;
+        this.userId_userName = userId_userName;
+    }
+
+    public static long getSerialVersionUID() {
+        return serialVersionUID;
     }
 
     public Integer getId() {
@@ -111,10 +110,6 @@ private static final long serialVersionUID=1L;
         this.name = name;
     }
 
-    public static long getSerialVersionUID() {
-        return serialVersionUID;
-    }
-
     public List<Organization> getChildren() {
         return children;
     }
@@ -123,29 +118,21 @@ private static final long serialVersionUID=1L;
         this.children = children;
     }
 
-    public List<Organization> getParent() {
-        return parent;
+    public Map<Integer, String> getUserId_userName() {
+        return userId_userName;
     }
 
-    public void setParent(List<Organization> parent) {
-        this.parent = parent;
-    }
-
-    public List<User> getUsers() {
-        return users;
-    }
-
-    public void setUsers(List<User> users) {
-        this.users = users;
+    public void setUserId_userName(Map<Integer, String> userId_userName) {
+        this.userId_userName = userId_userName;
     }
 
     @Override
     public String toString() {
         return "Organization{" +
-        "id=" + id +
-        ", pid=" + pid +
-        ", level=" + level +
-        ", name=" + name +
-        "}";
+                "id=" + id +
+                ", pid=" + pid +
+                ", level=" + level +
+                ", name='" + name + '\'' +
+                '}';
     }
 }
