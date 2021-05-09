@@ -36,15 +36,9 @@ private static final long serialVersionUID=1L;
 
     //当前职位id 下的 子路径
     //使用@JsonIgnore注解，忽略此属性，前端不会拿到该属性
-    @JsonIgnore
+
     @TableField(exist = false)
     private List<Organization> children;
-
-    //当前职位id 对应的所有 用户id,用户名
-    //使用@JsonIgnore注解，忽略此属性，前端不会拿到该属性
-    @JsonIgnore
-    @TableField(exist = false)
-    private Map<Integer,String> userId_userName;
 
     public Organization() {
     }
@@ -64,15 +58,6 @@ private static final long serialVersionUID=1L;
         this.children = children;
     }
 
-    public Organization(Integer id, Integer pid, Integer level, String name,
-                        List<Organization> children, Map<Integer, String> userId_userName) {
-        this.id = id;
-        this.pid = pid;
-        this.level = level;
-        this.name = name;
-        this.children = children;
-        this.userId_userName = userId_userName;
-    }
 
     public static long getSerialVersionUID() {
         return serialVersionUID;
@@ -118,14 +103,6 @@ private static final long serialVersionUID=1L;
         this.children = children;
     }
 
-    public Map<Integer, String> getUserId_userName() {
-        return userId_userName;
-    }
-
-    public void setUserId_userName(Map<Integer, String> userId_userName) {
-        this.userId_userName = userId_userName;
-    }
-
     @Override
     public String toString() {
         return "Organization{" +
@@ -133,6 +110,7 @@ private static final long serialVersionUID=1L;
                 ", pid=" + pid +
                 ", level=" + level +
                 ", name='" + name + '\'' +
+                ", children=" + children +
                 '}';
     }
 }

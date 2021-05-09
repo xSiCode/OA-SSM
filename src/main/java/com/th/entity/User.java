@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import java.time.LocalDate;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
@@ -82,6 +83,11 @@ private static final long serialVersionUID=1L;
      * 外键，职位id
      */
     private Integer organizationId;
+    //表示,如果值为null,则不返回 不封装为json,不序列号使用
+    // @JsonInclude 注解可以控制在哪些情况下才将被注解的属性转换成 json，例如只有属性不为 null 时。
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @TableField(exist = false)
+    private String organizationName;
 
     public User() {
     }
@@ -101,7 +107,21 @@ private static final long serialVersionUID=1L;
         this.userIdCard = userIdCard;
         this.organizationId = organizationId;
     }
-
+    public User(Integer userId, String userPassword, String userRole, String userName, String userTel,
+                String userEmail, String userSex, LocalDate userBirth, String userIdCard,
+                Integer organizationId, String organizationName) {
+        this.userId = userId;
+        this.userPassword = userPassword;
+        this.userRole = userRole;
+        this.userName = userName;
+        this.userTel = userTel;
+        this.userEmail = userEmail;
+        this.userSex = userSex;
+        this.userBirth = userBirth;
+        this.userIdCard = userIdCard;
+        this.organizationId = organizationId;
+        this.organizationName = organizationName;
+    }
     public Integer getUserId() {
         return userId;
     }
@@ -186,6 +206,14 @@ private static final long serialVersionUID=1L;
         return serialVersionUID;
     }
 
+    public String getOrganizationName() {
+        return organizationName;
+    }
+
+    public void setOrganizationName(String organizationName) {
+        this.organizationName = organizationName;
+    }
+
     @Override
     public String toString() {
         return "User{" +
@@ -199,6 +227,7 @@ private static final long serialVersionUID=1L;
                 ", userBirth=" + userBirth +
                 ", userIdCard='" + userIdCard + '\'' +
                 ", organizationId=" + organizationId +
+                ", organizationName='" + organizationName + '\'' +
                 '}';
     }
 }

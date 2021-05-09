@@ -15,13 +15,39 @@
         <result column="user_id_card" property="userIdCard" />
         <result column="organization_id" property="organizationId" />
     </resultMap>
-
+    <resultMap id="selectUserFull" type="com.th.entity.User">
+        <id column="user_id" property="userId" />
+        <result column="user_password" property="userPassword" />
+        <result column="user_role" property="userRole" />
+        <result column="user_name" property="userName" />
+        <result column="user_tel" property="userTel" />
+        <result column="user_email" property="userEmail" />
+        <result column="user_sex" property="userSex" />
+        <result column="user_birth" property="userBirth" />
+        <result column="user_id_card" property="userIdCard" />
+        <result column="organization_id" property="organizationId" />
+        <result column="name" property="organizationName"/>
+    </resultMap>
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
         user_id, user_password, user_role, user_name, user_tel, user_email, user_sex, user_birth, user_id_card, organization_id
     </sql>
     <select id="selectUsersIdNameByOrganizationId" resultType="java.util.Map">
         select user_id id ,user_name name from t_user where organization_id =#{organizationId};
+    </select>
+    <select id="selectUsersFullLikeKey" resultMap="selectUserFull">
+        select <include refid="Base_Column_List"/>, `name`
+        from t_user ,t_organization
+        where id=organization_id
+        and (user_id like concat('%',#{key},'%')
+        or user_name like concat('%',#{key} ,'%')
+        or user_tel  like binary concat('%',#{key} ,'%')
+        or user_id_card like concat('%',#{key}  ,'%')
+        or `name` like concat('%',#{key}  ,'%') )
+
+
+
+
     </select>
 
 </mapper>

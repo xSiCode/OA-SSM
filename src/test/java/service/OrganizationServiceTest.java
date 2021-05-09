@@ -1,6 +1,7 @@
 package service;
 
 import com.baomidou.mybatisplus.extension.service.additional.query.impl.QueryChainWrapper;
+import com.th.dao.OrganizationMapper;
 import com.th.dao.UserMapper;
 import com.th.entity.Organization;
 import com.th.entity.User;
@@ -37,6 +38,8 @@ public class OrganizationServiceTest {
     @Autowired
     Organization organization;
     @Autowired
+    OrganizationMapper organizationMapper;
+    @Autowired
     UserMapper userMapper;
     @Autowired
     UserService userService;
@@ -48,7 +51,7 @@ public class OrganizationServiceTest {
 
     @Test
     public void listWithTreeById(){
-        List<Organization> organizations =organizationService.listWithTreeById(62);
+        List<Organization> organizations =organizationService.listWithTreeById(11);
         System.out.println(organizations);
     }
 
@@ -81,9 +84,9 @@ public class OrganizationServiceTest {
     }
 
     @Test
-    public void getOrganizationNameByKey(){
+    public void getOrganizationByName(){
         String key ="校";
-        List<Organization> organizationNameByKey = organizationService.getOrganizationNameByKey(key);
+        List<Organization> organizationNameByKey = organizationService.getOrganizationByName(key);
         System.out.println(organizationNameByKey);
     }
 
@@ -101,4 +104,38 @@ public class OrganizationServiceTest {
         System.out.println(collect);
 
     }
+
+
+    @Test
+    public void tes(){
+        List<Organization> organizations = this.listWithTreeA();
+        System.out.println(organizations);
+    }
+
+    public List<Organization> listWithTreeA() {
+        //1,查找处所有分类.
+        List<Organization> organizations = organizationMapper.selectList(null);
+        System.out.println("A="+organizations);
+        //2 组装成父子的树形结构
+        //2.1 找到所有的一级分类
+        List<Organization> levelOneMenus = organizations.stream().filter(organization -> organization.getPid() == 0
+        ).map((menu) -> {
+            menu.setChildren(getSonMenu(menu, organizations));
+            return menu;
+        }).collect(Collectors.toList());
+        return levelOneMenus;
+    }
+
+    private List<Organization> getSonMenu(Organization menuRoot, List<Organization> all) {
+        System.out.println("B:"+menuRoot +"       B2:"+all);
+        List<Organization> children =all.stream().filter(organization->{
+            return organization.getPid()==menuRoot.getId();
+        }).map(organization->{
+            //1.找到子菜单
+            organization.setChildren(getSonMenu(organization,all));
+            return organization;
+        }).collect(Collectors.toList());
+        return  children    ;
+    }
+
 }

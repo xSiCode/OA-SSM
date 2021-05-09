@@ -6,14 +6,12 @@ import com.baomidou.mybatisplus.core.conditions.segments.MergeSegments;
 import com.th.dao.UserMapper;
 import com.th.entity.Organization;
 import com.th.dao.OrganizationMapper;
-import com.th.entity.User;
 import com.th.service.OrganizationService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import javafx.beans.binding.StringBinding;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.io.Serializable;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -36,18 +34,15 @@ public class OrganizationServiceImpl extends ServiceImpl<OrganizationMapper, Org
     @Override
     public List<Organization> listWithTree() {
         //1,查找处所有分类.
-        List<Organization> organizations = baseMapper.selectList(null);
+        List<Organization> organizations=baseMapper.selectList(null);
         //2 组装成父子的树形结构
         //2.1 找到所有的一级分类
-        List<Organization> levelMenus = organizations
-                .stream()
-                .filter(organization -> organization.getPid() == 0)
-                .map((menu) -> {
-                    menu.setChildren(getChildrenMenuPaths(menu, organizations));
-                    return menu;
-                })
-                .collect(Collectors.toList());
-        return levelMenus;
+        List<Organization> levelOneMenus=organizations.stream().filter(organization->organization.getPid() ==0
+        ).map( (menu) ->{
+            menu.setChildren(getSonMenu(menu,organizations));
+            return menu;
+        }).collect(Collectors.toList());
+        return levelOneMenus;
     }
 
     @Override
@@ -60,7 +55,7 @@ public class OrganizationServiceImpl extends ServiceImpl<OrganizationMapper, Org
                 .stream()
                 .filter(organization -> organization.getPid() == id)
                 .map((menu) -> {
-                    menu.setChildren(getChildrenMenuPaths(menu, organizations));
+                    menu.setChildren(getSonMenu(menu, organizations));
                     return menu;
                 })
                 .collect(Collectors.toList());
@@ -114,7 +109,7 @@ public class OrganizationServiceImpl extends ServiceImpl<OrganizationMapper, Org
     }
 
     @Override
-    public List<Organization> getOrganizationNameByKey(String key) {
+    public List<Organization> getOrganizationByName(String key) {
         List<Organization> organizations= baseMapper.selectList(new QueryWrapper<Organization>()
                 .like("name",key)
         );
@@ -144,15 +139,15 @@ public class OrganizationServiceImpl extends ServiceImpl<OrganizationMapper, Org
         return paths;
     }
 
-    private List<Organization> getChildrenMenuPaths(Organization menuRoot, List<Organization> sonAll) {
-        List<Organization> childrenOrganizations = sonAll
-                .stream()
-                .filter(organization -> organization.getPid() == menuRoot.getId() )
-                .map(organization -> {
-                    //1.找到子菜单
-                    organization.setChildren(getChildrenMenuPaths(organization, sonAll));
-                    return organization;
+    //递归查找所有菜单的子菜单  两个参数menuRoot是需要被查找子分类的菜单（当前菜单）、sonAll是所有的分类菜单
+    private List<Organization> getSonMenu(Organization menuRoot, List<Organization> all) {
+        List<Organization> children =all.stream().filter(organization->{
+            return organization.getPid()==menuRoot.getId();
+        }).map(organization->{
+            //1.找到子菜单
+            organization.setChildren(getSonMenu(organization,all));
+            return organization;
         }).collect(Collectors.toList());
-        return childrenOrganizations;
+        return  children    ;
     }
 }

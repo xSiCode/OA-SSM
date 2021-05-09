@@ -11,6 +11,7 @@ import com.th.service.UserService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.th.utils.DataVerification;
 import javafx.beans.binding.StringBinding;
+import org.apache.velocity.util.ArrayListWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -37,50 +38,44 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Autowired
     OrganizationService organizationService;
 
-    @Override
-    public List<Object> ListUserOrganizationByUserId(User user) {
-        List<Organization> organizations = organizationService.listParentPathsWithTreeById(user.getOrganizationId());
-        List<Object> userOrganization = new ArrayList<>();
-        userOrganization.add(user);
-        userOrganization.add(organizations);
 
-        return userOrganization;
-    }
 
     @Override
-    public List<Object> listUserOrganizationStringByUserId(User user) {
-        String currentOrganization=organizationService.listParentPathsWithStringById(user.getOrganizationId());//得到职能部门-组织人事处-干事
-        Map<String,String> userCurrentOrganizationMap=new HashMap<>();
-        userCurrentOrganizationMap.put("currentOrganization",currentOrganization);//封装为map
-        List<Object> userOrganizationList=new ArrayList<>();
-        userOrganizationList.add(user);
-        userOrganizationList.add(userCurrentOrganizationMap);
+    public List<User> listUserOrganizationStringByUserId(User currentUser) {
+        String currentOrganization=organizationService.listParentPathsWithStringById(currentUser.getOrganizationId());//得到职能部门-组织人事处-干事
+        currentUser.setOrganizationName( currentOrganization );
+        List<User> userOrganizationList=new ArrayList<>();
+        userOrganizationList.add(currentUser);
         return userOrganizationList;
     }
 
     @Override
-    public List<Object> listUserOrganizationStringByUserId(List<User> users) {
-        List<Object> objects=new ArrayList<>();
+    public List<User> listUserOrganizationStringByUserId(List<User> users) {
+        String currentOrganization="";
         for(User currentUser:users){
-            //找出list中的每一个user,并找到他们的 职位string  最后添加到list中
-            objects.add(listUserOrganizationStringByUserId(currentUser) );
+             currentOrganization=organizationService.listParentPathsWithStringById(currentUser.getOrganizationId());//得到职能部门-组织人事处-干事
+            currentUser.setOrganizationName( currentOrganization);
         }
-        return objects;
+        return users;
     }
 
-    @Override
-    public List<Object> listUserOrganizationStringByKey(String searchKey) {
+  /*  @Override   虽然没用了，但留个纪念也好，当初花了不少时间
+    public List<User> listUserOrganizationStringByKey(String searchKey) {
+        List<User> users =new ArrayList<>();
+        List<User> usersOrgNameEmpty = this.getUserByKey(searchKey);//将符合user表中字段查询的结果的users 传入list中。这里orgName 还为空
+        List<User> users1 = this.listUserOrganizationStringByUserId(usersOrgNameEmpty);//orgName 不为空了
 
-        List<User> users = this.getUserByKey(searchKey);//将符合user表中字段查询的结果的users 传入list中
-        users.addAll(this.getUserByOrganizationName(searchKey) );//将符合organization中name查询结结果 的 user 传入list中
+        List<User> user2OrgNameEmpty = this.getUserByOrganizationName(searchKey);//将符合organization中name查询结结果 的 user 传入list中
+        List<User> users2 = this.listUserOrganizationStringByUserId(user2OrgNameEmpty);//orgName 不为空了
+
+        users.addAll(users1);
+        users.addAll(users2);
         //java8 新特性，去重    以上两个表查询的结果 可能有重复，去重
         List<User> usersDistinct = users.stream().distinct().collect(Collectors.toList());
         ////根据在user表中查找到的数据，再加上 组织-职位
-        List<Object> objects = this.listUserOrganizationStringByUserId(usersDistinct);
-
-        return objects;
+        return usersDistinct;
     }
-
+*/
     @Override
     public List<User> getUserByKey(String key) {
         //如果参数不能转为整数，则id查询时用 -1查询，即查不到. 。如果能转为整数，则使用转后的数值
@@ -108,7 +103,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     public List<User> getUserByOrganizationName(String organizationName) {
         //通过传入的 职位名字，查找出 对应的 user
         //1.找出所有 职位的organizations,没有重复OrganizationId,职位名称有
-        List<Organization> organizations = organizationService.getOrganizationNameByKey(organizationName);
+        List<Organization> organizations = organizationService.getOrganizationByName(organizationName);
         List<User> users =new ArrayList<>();
         List<User> usersTemp =new ArrayList<>();
         //将每一个 职位 下对应的 user 都遍历出来，放入list中
@@ -121,6 +116,22 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         //java8 新特性，去重 不需要去重，现在设计的是一个人只有一个职位
       //  List<User> usersDistinct = users.stream().distinct().collect(Collectors.toList());
         return users;
+    }
+
+    @Override
+    public List<User> listUserFullLikeKey(String key) {
+        //这里的user里对应的职位名是： “干事”   而不是”职能部门-组织人事处-干事“ 格式，这里添加一下
+        List<User> users = baseMapper.selectUsersFullLikeKey(key);
+        List<User> usersFull = this.listUserOrganizationStringByUserId(users);
+
+
+        return usersFull;
+    }
+
+    @Override
+    public List<Map<Integer, String>> selectUsersIdNameByOrganizationId(Integer organizationId) {
+        List<Map<Integer, String>> maps = baseMapper.selectUsersIdNameByOrganizationId(organizationId);
+        return maps;
     }
 
 

@@ -25,21 +25,14 @@ public class UserServiceTest {
     @Autowired
     UserService userService;
 
-    @Test
-    public void ListUserOrganizationByUserId(){
-        User user= new User();
-        user.setUserId(2388);
-        user.setOrganizationId(222);
-        List<Object> objects = userService.ListUserOrganizationByUserId(user);
-        System.out.println(objects);
-    }
+
 
     @Test
     public void listUserOrganizationStringByUserId(){
         User user= new User();
         user.setUserId(2388);
         user.setOrganizationId(224);
-        List<Object> objects = userService.listUserOrganizationStringByUserId(user);
+        List<User> objects = userService.listUserOrganizationStringByUserId(user);
         System.out.println(objects);
     }
     @Test
@@ -57,14 +50,14 @@ public class UserServiceTest {
         users.add(user1);
         users.add(user2);
         users.add(user3);
-        List<Object> objects = userService.listUserOrganizationStringByUserId(users);
+        List<User> objects = userService.listUserOrganizationStringByUserId(users);
         System.out.println(objects);
 
     }
     @Test
-    public void listUserOrganizationStringByKey(){
+    public void listUserFullLikeKey(){
         String key ="校";
-        List<Object> objects = userService.listUserOrganizationStringByKey(key);
+        List<User> objects = userService.listUserFullLikeKey(key);
         System.out.println(objects);
     }
 

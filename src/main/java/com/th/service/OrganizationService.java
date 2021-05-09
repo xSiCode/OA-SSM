@@ -31,10 +31,10 @@ public interface OrganizationService extends IService<Organization> {
     String listParentPathsWithStringById(Integer organizationId);
 
 
-    //得到 当前 id 对应的用户 ids,names
+    //得到 当前 organization_id 对应的用户 ids,names
     List<Map<Integer,String>> listUsersByOrganizationId(Integer organizationId);
 
 
-    //根据key ,查找Organization表 的名字
-    List<Organization> getOrganizationNameByKey(String key);
+    //根据key ,查找Organization表 name 的名字
+    List<Organization> getOrganizationByName(String key);
 }
