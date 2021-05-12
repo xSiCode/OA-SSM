@@ -45,7 +45,7 @@ public class MatterGeneratorTest {
                 .setNaming(NamingStrategy.underline_to_camel) // 数据库字段下划线转驼峰命令策略
                 .setColumnNaming(NamingStrategy.underline_to_camel) // 表字段下划线转驼峰命令策略
                 .setTablePrefix("t_") // 设置表前缀
-                .setInclude("t_matter","t_matter_attachment","t_matter_handler"); // 设置需要生成的表  可多个，即 一次性生成
+                .setInclude("t_matter","t_matter_attachment","t_matter_handler","t_matter_content_config"); // 设置需要生成的表  可多个，即 一次性生成
         // 4.包名策略配置
         PackageConfig packageConfig = new PackageConfig();
         packageConfig.setParent("com.th") // 设置父包
