@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.th.dao.MatterContentConfigMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.th.entity.MatterContentConfig">
+        <id column="id" property="id" />
+        <result column="font_bgColor" property="fontBgcolor" />
+        <result column="font_color" property="fontColor" />
+        <result column="font_family" property="fontFamily" />
+        <result column="font_oblique" property="fontOblique" />
+        <result column="font_size" property="fontSize" />
+        <result column="font_weight" property="fontWeight" />
+        <result column="line_height" property="lineHeight" />
+        <result column="text_align" property="textAlign" />
+        <result column="text_decoration" property="textDecoration" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, font_bgColor, font_color, font_family, font_oblique, font_size, font_weight, line_height, text_align, text_decoration
+    </sql>
+
+</mapper>

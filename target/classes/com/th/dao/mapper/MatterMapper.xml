@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.th.dao.MatterMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.th.entity.Matter">
+        <id column="id" property="id" />
+        <result column="title" property="title" />
+        <result column="content_text" property="contentText" />
+        <result column="content_config_id" property="contentConfigId" />
+        <result column="send_time" property="sendTime" />
+        <result column="deadline_time" property="deadlineTime" />
+        <result column="creator_id" property="creatorId" />
+        <result column="status" property="status" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, title, content_text, content_config_id, send_time, deadline_time, creator_id, status
+    </sql>
+
+</mapper>

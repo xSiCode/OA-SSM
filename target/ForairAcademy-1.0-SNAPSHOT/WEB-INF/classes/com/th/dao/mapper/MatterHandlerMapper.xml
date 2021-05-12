@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.th.dao.MatterHandlerMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.th.entity.MatterHandler">
+        <id column="id" property="id" />
+        <result column="matter_id" property="matterId" />
+        <result column="handler_id" property="handlerId" />
+        <result column="completed_time" property="completedTime" />
+        <result column="matter_status" property="matterStatus" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, matter_id, handler_id, completed_time, matter_status
+    </sql>
+
+</mapper>
