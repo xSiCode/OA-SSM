@@ -20,7 +20,7 @@ public interface UserService extends IService<User> {
 
 
     // ，最终返回用户信息 和他所在的 组织-职位（string格式显示）
-    List<User> listUserOrganizationStringByUserId(User user);
+    User getUserOrganizationStringByUserId(User user);
     List<User> listUserOrganizationStringByUserId(List<User> users);
 
     //根据keyString ,查找user表

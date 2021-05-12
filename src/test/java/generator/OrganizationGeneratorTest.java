@@ -17,10 +17,10 @@ import org.junit.Test;
  * @Date : 2021/5/6 21:09
  * @Version : 1.0
  */
-public class UserGenerator {
+public class OrganizationGeneratorTest {
 
     @Test
-    public void userGeneratorTest() {
+    public void organizationGenerator() {
         //1全局配置
         /*
          *作者，生成路径，再次生成文件时是否覆盖，生成主键策略，service接口的首字母是否位i,生成基本属性字段，表字段
@@ -46,7 +46,7 @@ public class UserGenerator {
                 .setNaming(NamingStrategy.underline_to_camel) // 数据库字段下划线转驼峰命令策略
                 .setColumnNaming(NamingStrategy.underline_to_camel) // 表字段下划线转驼峰命令策略
                 .setTablePrefix("t_") // 设置表前缀
-                .setInclude("t_user"); // 设置需要生成的表  可多个，即 一次性生成
+                .setInclude("t_organization"); // 设置需要生成的表  可多个，即 一次性生成
         // 4.包名策略配置
         PackageConfig packageConfig = new PackageConfig();
         packageConfig.setParent("com.th") // 设置父包

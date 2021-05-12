@@ -32,7 +32,7 @@ public class UserServiceTest {
         User user= new User();
         user.setUserId(2388);
         user.setOrganizationId(224);
-        List<User> objects = userService.listUserOrganizationStringByUserId(user);
+        User objects = userService.getUserOrganizationStringByUserId(user);
         System.out.println(objects);
     }
     @Test

@@ -41,12 +41,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
 
     @Override
-    public List<User> listUserOrganizationStringByUserId(User currentUser) {
+    public User getUserOrganizationStringByUserId(User currentUser) {
         String currentOrganization=organizationService.listParentPathsWithStringById(currentUser.getOrganizationId());//得到职能部门-组织人事处-干事
         currentUser.setOrganizationName( currentOrganization );
-        List<User> userOrganizationList=new ArrayList<>();
-        userOrganizationList.add(currentUser);
-        return userOrganizationList;
+        return currentUser;
     }
 
     @Override

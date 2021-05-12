@@ -41,11 +41,6 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @Autowired
-    private Organization organization;
-
-    @Autowired
-    private OrganizationService organizationService;
 
     @PostMapping("/login")
     @ResponseBody
@@ -55,21 +50,22 @@ public class UserController {
         Integer id = Integer.parseInt(String.valueOf(userMap.get("userId")));
         String password = String.valueOf(userMap.get("userPassword"));
         String role = String.valueOf(userMap.get("userRole"));
-        user.setUserId(id);
-        user.setUserPassword(password);
-        user.setUserRole(role);
-        System.out.println(user);
         try {
             user = userService.getOne(new QueryWrapper<User>()
-                    .eq("user_id", user.getUserId())
-                    .eq("user_password", user.getUserPassword())
-                    .eq("user_role", user.getUserRole()));
+                    .eq("user_id", id)
+                    .eq("user_password",password)
+                    .eq("user_role", role));
+
             if (user != null) {
                 System.out.println("登录成功,预计返回用户信息和他所对应的 组织-职位  ");//职能部门-组织人事处-干事
-                List<User> objects = userService.listUserOrganizationStringByUserId(user);
-                return ResponseData.SUCCESS().extendData("userOrganization", objects);
+
+                user=userService.getUserOrganizationStringByUserId(user);
+
+                return ResponseData.SUCCESS().extendData("userOrganization", user);
             } else {
                 System.out.println("账号或密码错误");
+
+                System.out.println("4444444444444444444"+user);
                 return ResponseData.FAIL();
             }
         } catch (Exception e) {
@@ -120,7 +116,8 @@ public class UserController {
         try {
             boolean flag = userService.updateById(currentUser);
             if (flag) {
-                return ResponseData.SUCCESS().extendData("updateState", "修改成功");
+                currentUser=userService.getUserOrganizationStringByUserId(currentUser);
+                return ResponseData.SUCCESS().extendData("updateUser",currentUser);
             } else {
                 return ResponseData.FAIL().extendData("updateState", "修改失败");
             }
