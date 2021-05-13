@@ -15,5 +15,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface MatterContentConfigMapper extends BaseMapper<MatterContentConfig> {
-
+    MatterContentConfig selectContentConfigByConfigId(Integer configId);
 }

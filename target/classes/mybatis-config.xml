@@ -10,7 +10,9 @@
 <!--    开启驼峰命名规则 延迟懒加载，关闭侵入式加载，按需加载-->
         <setting name="mapUnderscoreToCamelCase" value="true"/>
         <setting name="jdbcTypeForNull" value="NULL"/>
-        <setting name="lazyLoadingEnabled" value="true"/>
+
+<!--        关闭延迟加载，我主要是用于 级联全属性赋值，所以不能延迟加载-->
+        <setting name="lazyLoadingEnabled" value="false"/>
         <setting name="aggressiveLazyLoading" value="false"/>
     </settings>
     

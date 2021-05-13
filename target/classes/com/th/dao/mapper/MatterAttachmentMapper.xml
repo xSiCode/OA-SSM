@@ -4,15 +4,33 @@
 
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="com.th.entity.MatterAttachment">
-        <id column="id" property="id" />
-        <result column="name" property="name" />
-        <result column="data" property="data" />
-        <result column="matter_id" property="matterId" />
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="data" property="data"/>
+        <result column="matter_id" property="matterId"/>
     </resultMap>
+
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
         id, name, data, matter_id
     </sql>
 
+
+    <select id="selectAttachmentByMatterId" resultMap="BaseResultMap">
+        select * from t_matter_attachment where  matter_id =#{matterId}
+    </select>
+    <select id="selectAttachmentsByMatterId" resultMap="BaseResultMap">
+        select * from t_matter_attachment where  matter_id =#{matterId}
+    </select>
+    <select id="selectAttachmentsByMaterIds" resultMap="BaseResultMap">
+        select * from t_matter_attachment where matter_id in
+        <foreach collection="list" index="index" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+
+
+
 </mapper>
+

@@ -32,5 +32,6 @@ public interface UserService extends IService<User> {
 
     List<Map<Integer,String>> selectUsersIdNameByOrganizationId(Integer organizationId);
 
+    String getUserName_userId(Integer userId);
 
 }

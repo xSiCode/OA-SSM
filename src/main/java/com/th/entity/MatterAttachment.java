@@ -3,6 +3,7 @@ package com.th.entity;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.springframework.stereotype.Component;
 
 import java.io.Serializable;
@@ -15,7 +16,6 @@ import java.io.Serializable;
  * @author 杨天发
  * @since 2021-05-12
  */
-
 @Component
 @TableName("t_matter_attachment")
 public class MatterAttachment implements Serializable {

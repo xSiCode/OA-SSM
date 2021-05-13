@@ -12,13 +12,17 @@
         <result column="font_size" property="fontSize" />
         <result column="font_weight" property="fontWeight" />
         <result column="line_height" property="lineHeight" />
-        <result column="text_align:" property="textAlign:" />
+        <result column="text_align" property="textAlign" />
         <result column="text_decoration" property="textDecoration" />
     </resultMap>
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, font_bgColor, font_color, font_family, font_oblique, font_size, font_weight, line_height, text_align:, text_decoration
+        id, font_bgColor, font_color, font_family, font_oblique, font_size, font_weight, line_height, text_align, text_decoration
     </sql>
+    <select id="selectContentConfigByConfigId" resultMap="BaseResultMap">
+        select * from t_matter_content_config where id = #{configId}
+
+    </select>
 
 </mapper>

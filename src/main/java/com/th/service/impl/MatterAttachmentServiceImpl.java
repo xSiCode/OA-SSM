@@ -1,9 +1,12 @@
 package com.th.service.impl;
 
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.th.entity.MatterAttachment;
 import com.th.dao.MatterAttachmentMapper;
 import com.th.service.MatterAttachmentService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.apache.ibatis.annotations.Mapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
@@ -16,5 +19,9 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class MatterAttachmentServiceImpl extends ServiceImpl<MatterAttachmentMapper, MatterAttachment> implements MatterAttachmentService {
+
+    @Autowired
+    MatterAttachment matterAttachment;
+
 
 }

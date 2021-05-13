@@ -1,9 +1,12 @@
 package com.th.entity;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
@@ -40,6 +43,10 @@ private static final long serialVersionUID=1L;
      */
     private Integer handlerId;
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @TableField(exist = false)
+    private String handlerName;
+
     /**
      * 事项的完成时间
      */
@@ -54,10 +61,21 @@ private static final long serialVersionUID=1L;
     public MatterHandler() {
     }
 
-    public MatterHandler(Integer id, Integer matterId, Integer handlerId, LocalDateTime completedTime, String matterStatus) {
+    public MatterHandler(Integer id, Integer matterId, Integer handlerId,
+                         LocalDateTime completedTime, String matterStatus) {
         this.id = id;
         this.matterId = matterId;
         this.handlerId = handlerId;
+        this.completedTime = completedTime;
+        this.matterStatus = matterStatus;
+    }
+
+    public MatterHandler(Integer id, Integer matterId, Integer handlerId,
+                         String handlerName, LocalDateTime completedTime, String matterStatus) {
+        this.id = id;
+        this.matterId = matterId;
+        this.handlerId = handlerId;
+        this.handlerName = handlerName;
         this.completedTime = completedTime;
         this.matterStatus = matterStatus;
     }
@@ -102,14 +120,27 @@ private static final long serialVersionUID=1L;
         this.matterStatus = matterStatus;
     }
 
+    public static long getSerialVersionUID() {
+        return serialVersionUID;
+    }
+
+    public String getHandlerName() {
+        return handlerName;
+    }
+
+    public void setHandlerName(String handlerName) {
+        this.handlerName = handlerName;
+    }
+
     @Override
     public String toString() {
         return "MatterHandler{" +
-        "id=" + id +
-        ", matterId=" + matterId +
-        ", handlerId=" + handlerId +
-        ", completedTime=" + completedTime +
-        ", matterStatus=" + matterStatus +
-        "}";
+                "id=" + id +
+                ", matterId=" + matterId +
+                ", handlerId=" + handlerId +
+                ", handlerName='" + handlerName + '\'' +
+                ", completedTime=" + completedTime +
+                ", matterStatus='" + matterStatus + '\'' +
+                '}';
     }
 }

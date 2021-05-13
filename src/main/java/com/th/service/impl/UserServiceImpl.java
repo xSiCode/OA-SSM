@@ -57,23 +57,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         return users;
     }
 
-  /*  @Override   虽然没用了，但留个纪念也好，当初花了不少时间
-    public List<User> listUserOrganizationStringByKey(String searchKey) {
-        List<User> users =new ArrayList<>();
-        List<User> usersOrgNameEmpty = this.getUserByKey(searchKey);//将符合user表中字段查询的结果的users 传入list中。这里orgName 还为空
-        List<User> users1 = this.listUserOrganizationStringByUserId(usersOrgNameEmpty);//orgName 不为空了
 
-        List<User> user2OrgNameEmpty = this.getUserByOrganizationName(searchKey);//将符合organization中name查询结结果 的 user 传入list中
-        List<User> users2 = this.listUserOrganizationStringByUserId(user2OrgNameEmpty);//orgName 不为空了
-
-        users.addAll(users1);
-        users.addAll(users2);
-        //java8 新特性，去重    以上两个表查询的结果 可能有重复，去重
-        List<User> usersDistinct = users.stream().distinct().collect(Collectors.toList());
-        ////根据在user表中查找到的数据，再加上 组织-职位
-        return usersDistinct;
-    }
-*/
     @Override
     public List<User> getUserByKey(String key) {
         //如果参数不能转为整数，则id查询时用 -1查询，即查不到. 。如果能转为整数，则使用转后的数值
@@ -130,6 +114,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     public List<Map<Integer, String>> selectUsersIdNameByOrganizationId(Integer organizationId) {
         List<Map<Integer, String>> maps = baseMapper.selectUsersIdNameByOrganizationId(organizationId);
         return maps;
+    }
+
+    @Override
+    public String getUserName_userId(Integer userId) {
+        User user = baseMapper.selectById(userId);
+
+        return user.getUserName();
     }
 
 

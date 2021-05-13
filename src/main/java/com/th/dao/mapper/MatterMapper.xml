@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.th.dao.MatterMapper">
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, title, content_text, content_config_id, send_time, deadline_time, creator_id, status
+    </sql>
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List_creatorName">
+        id, title, content_text, content_config_id, send_time, deadline_time, creator_id,user_name creator_name, status
+    </sql>
 
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="com.th.entity.Matter">
@@ -14,17 +22,130 @@
         <result column="status" property="status" />
     </resultMap>
 
-    <!-- 通用查询结果列 -->
-    <sql id="Base_Column_List">
-        id, title, content_text, content_config_id, send_time, deadline_time, creator_id, status
-    </sql>
+    <!-- 通用查询映射结果 带 creatorName-->
+    <resultMap id="BaseResultMap_creatorName" type="com.th.entity.Matter">
+        <id column="id" property="id" />
+        <result column="title" property="title" />
+        <result column="content_text" property="contentText" />
+        <result column="content_config_id" property="contentConfigId" />
+        <result column="send_time" property="sendTime" />
+        <result column="deadline_time" property="deadlineTime" />
+        <result column="creator_id" property="creatorId" />
+        <result column="creator_name" property="creatorName"/>
+        <result column="status" property="status" />
+    </resultMap>
+
+
+    <!-- 通用查询映射 所有结果（附件，处理人，文本格式） -->
+    <resultMap id="BaseResultMapWith_attachment_handler_config" type="com.th.entity.Matter" extends="BaseResultMap">
+        <association property="contentConfig"
+                     select="com.th.dao.MatterContentConfigMapper.selectContentConfigByConfigId"
+                     column="{configId=content_config_id}">
+        </association>
+        <collection property="attachments"
+                    select="com.th.dao.MatterAttachmentMapper.selectAttachmentsByMatterId"
+                    column="{matterId=id}">
+        </collection>
+        <collection property="handlers"
+                    select="com.th.dao.MatterHandlerMapper.selectHandlersByMatterId"
+                    column="{matterId=id}">
+        </collection>
+    </resultMap>
+
+    <!-- 通用查询映射 所有结果（附件，处理人，文本格式） 带 creatorName   同时也是matter相关4个表的总和-->
+    <resultMap id="BaseResultMapEntity" type="com.th.entity.Matter" extends="BaseResultMap_creatorName">
+        <association property="contentConfig"
+                     select="com.th.dao.MatterContentConfigMapper.selectContentConfigByConfigId"
+                     column="{configId=content_config_id}">
+        </association>
+        <collection property="attachments"
+                    select="com.th.dao.MatterAttachmentMapper.selectAttachmentsByMatterId"
+                    column="{matterId=id}">
+        </collection>
+        <collection property="handlers"
+                    select="com.th.dao.MatterHandlerMapper.selectHandlersEntityByMatterId"
+                    column="{matterId=id}">
+        </collection>
+    </resultMap>
 
 
 
-    <select id="selectMatter_matterId" resultType="com.th.entity.Matter"></select>
+
+    <select id="selectMatterByMatterId" resultMap="BaseResultMapWith_attachment_handler_config">
+        select <include refid="Base_Column_List"/>
+         from t_matter where id = #{matterId}
+
+    </select>
+
+    <select id="selectMatterEntityByMatterId" resultMap="BaseResultMapEntity" >
+        select <include refid="Base_Column_List_creatorName"/>
+        from t_matter,t_user where creator_id = user_id and  id = #{matterId}
+    </select>
 
 
 
+    <select id="selectMatterHandlerBriefByUser" resultType="java.util.Map">
+        select m.id matterId,m.title title,
+            m.creator_id creatorId,cu.user_name sponsor,
+            mh.handler_id handlerId,hu.user_name handler,
+            m.send_time startTime,
+            m.deadline_time timeLimit,
+            mh.completed_time completedTime,
+            mh.matter_status state
+        from t_matter_handler mh,t_matter m,t_user cu,t_user hu
+        where mh.handler_id = hu.user_id
+        and     mh.matter_id = m.id
+        and     m.creator_id = cu.user_id
+        and     mh.handler_id = #{userId}
+        and     mh.matter_status = #{matterStatus}
+        and     m.status='submit'
+    </select>
+    <select id="selectMatterHandlerDetailByUser" resultType="java.util.Map">
+
+    </select>
+    <select id="selectMatterCreatorDraftBriefByUser" resultType="java.util.Map">
+         select m.id matterId,m.title title,
+            m.creator_id creatorId,cu.user_name sponsor,
+            m.send_time startTime,
+            m.status state
+        from t_matter m,t_user cu
+        where   m.creator_id = cu.user_id
+        and     m.creator_id = #{userId}
+        and     m.status = 'draft'
+    </select>
+    <select id="selectMatterCreatorSubmitBriefByUser" resultType="java.util.Map">
+        select m.id matterId,m.title title,
+            m.creator_id creatorId,cu.user_name sponsor,
+            m.send_time startTime,
+            m.deadline_time timeLimit,
+            mh.handler_id handler_id,
+            hu.user_name handler_name,
+            mh.matter_status state
+        from t_matter_handler mh,t_matter m,t_user hu,t_user cu
+        where   mh.matter_id = m.id
+        and     m.creator_id = cu.user_id
+        and     mh.handler_id = hu.user_id
+        and     m.creator_id = #{userId}
+        and     m.status='submit'
+    </select>
+
+
+<!--    <select id="selectMatterCreatorBriefByUser" resultMap="mMAP ">-->
+<!--        select m.id matterId,m.title title,-->
+<!--            m.creator_id creatorId,cu.user_name sponsor,-->
+<!--            m.send_time startTime,-->
+<!--            mh.matter_status state,-->
+<!--&#45;&#45;-->
+<!--            m.deadline_time timeLimit,-->
+<!--            mh.handler_id handler_id,-->
+<!--            hu.user_name handler_name,-->
+<!--        from t_matter_handler mh,t_matter m,t_user hu,t_user cu-->
+<!--        where   mh.matter_id = m.id-->
+<!--        and     m.creator_id = cu.user_id-->
+<!--        and     mh.handler_id = hu.user_id-->
+<!--        and     m.creator_id = #{userId}-->
+<!--        and     m.status status='submit'-->
+<!--    </select>-->
 
 
 </mapper>
