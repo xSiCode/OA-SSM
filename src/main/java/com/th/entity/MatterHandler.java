@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.io.Serializable;
+import java.util.Objects;
 
 /**
  * <p>
@@ -142,5 +143,23 @@ private static final long serialVersionUID=1L;
                 ", completedTime=" + completedTime +
                 ", matterStatus='" + matterStatus + '\'' +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        MatterHandler that = (MatterHandler) o;
+        return id.equals(that.id) &&
+                matterId.equals(that.matterId) &&
+                handlerId.equals(that.handlerId) &&
+                handlerName.equals(that.handlerName) &&
+                completedTime.equals(that.completedTime) &&
+                matterStatus.equals(that.matterStatus);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, matterId, handlerId, handlerName, completedTime, matterStatus);
     }
 }

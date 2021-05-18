@@ -4,10 +4,10 @@
 
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="com.th.entity.Organization">
-        <id column="id" property="id" />
-        <result column="pid" property="pid" />
-        <result column="level" property="level" />
-        <result column="name" property="name" />
+        <id column="id" property="id"/>
+        <result column="pid" property="pid"/>
+        <result column="level" property="level"/>
+        <result column="name" property="name"/>
     </resultMap>
 
     <!-- 通用查询结果列 -->
@@ -15,4 +15,23 @@
         id, pid, level, name
     </sql>
 
+
+    <resultMap id="orgUser" type="com.th.entity.OrgUser">
+        <id column="orgId" property="id"/>
+        <result column="orgName" property="name"/>
+        <result column="orgPid" property="pid"/>
+        <collection column="orgId"
+                    property="users"
+                    select="getUserIdNameByOrgId" >
+        </collection>
+    </resultMap>
+
+    <select id="selectOrgUser" resultMap="orgUser">
+        select o.id orgId , o.name orgName, o.pid orgPid
+        from t_organization o
+    </select>
+
+    <select id="getUserIdNameByOrgId" resultType="map">
+            select user_id id  ,user_name name from t_user where organization_id = #{currentOrgId}
+    </select>
 </mapper>

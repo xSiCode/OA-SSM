@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.springframework.stereotype.Component;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 /**
  * <p>
@@ -93,5 +94,21 @@ private static final long serialVersionUID=1L;
         ", data=" + data +
         ", matterId=" + matterId +
         "}";
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        MatterAttachment that = (MatterAttachment) o;
+        return Objects.equals(id, that.id) &&
+                Objects.equals(name, that.name) &&
+                Objects.equals(data, that.data) &&
+                Objects.equals(matterId, that.matterId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, name, data, matterId);
     }
 }

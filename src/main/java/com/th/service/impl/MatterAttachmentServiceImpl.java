@@ -24,4 +24,11 @@ public class MatterAttachmentServiceImpl extends ServiceImpl<MatterAttachmentMap
     MatterAttachment matterAttachment;
 
 
+    @Override
+    public boolean deleteAttachment(Integer currentMatterId, String matterStatus) {
+
+
+
+        return false;
+    }
 }

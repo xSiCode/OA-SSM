@@ -1,8 +1,10 @@
 package com.th.service;
 
+import com.th.entity.OrgUser;
 import com.th.entity.Organization;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.th.entity.User;
+import org.aspectj.weaver.ast.Or;
 
 import java.util.List;
 import java.util.Map;
@@ -18,6 +20,10 @@ import java.util.Map;
 public interface OrganizationService extends IService<Organization> {
     //得到 树状的 组织结构  0 开始的 获取树状子路径
     List<Organization> listWithTree();
+    //得到 树状的 组织结构  0 开始的 获取树状子路径
+    List<OrgUser> listOrgUser();
+
+    //List<OrgUser> listOrgUserJson()
     //得到 指定 树状的 子路径
     List<Organization> listWithTreeById(Integer id);
 
@@ -31,10 +37,13 @@ public interface OrganizationService extends IService<Organization> {
     String listParentPathsWithStringById(Integer organizationId);
 
 
-    //得到 当前 organization_id 对应的用户 ids,names
+    //得到  对应的用户 ids,names  根据 当前 organization_id
     List<Map<Integer,String>> listUsersByOrganizationId(Integer organizationId);
 
 
     //根据key ,查找Organization表 name 的名字
     List<Organization> getOrganizationByName(String key);
+
+
+
 }

@@ -102,11 +102,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Override
     public List<User> listUserFullLikeKey(String key) {
-        //这里的user里对应的职位名是： “干事”   而不是”职能部门-组织人事处-干事“ 格式，这里添加一下
+        /*调用dao层的代码，作用是，在数据库表中多字段模糊查询用户信息，并返回符合要求的用户*/
         List<User> users = baseMapper.selectUsersFullLikeKey(key);
         List<User> usersFull = this.listUserOrganizationStringByUserId(users);
-
-
         return usersFull;
     }
 

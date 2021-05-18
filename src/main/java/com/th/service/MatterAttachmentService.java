@@ -13,4 +13,5 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface MatterAttachmentService extends IService<MatterAttachment> {
 
+    boolean deleteAttachment(Integer currentMatterId, String matterStatus);
 }

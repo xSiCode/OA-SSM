@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.segments.MergeSegments;
 import com.th.dao.UserMapper;
+import com.th.entity.OrgUser;
 import com.th.entity.Organization;
 import com.th.dao.OrganizationMapper;
 import com.th.service.OrganizationService;
@@ -29,6 +30,8 @@ public class OrganizationServiceImpl extends ServiceImpl<OrganizationMapper, Org
     private Organization organization;
     @Autowired
     private UserMapper userMapper;
+    @Autowired
+    private OrgUser orgUser;
 
     //以下用于读取数据库organization 并转为 json对象 ,javabean  整个组织树状图
     @Override
@@ -40,6 +43,20 @@ public class OrganizationServiceImpl extends ServiceImpl<OrganizationMapper, Org
         List<Organization> levelOneMenus=organizations.stream().filter(organization->organization.getPid() ==0
         ).map( (menu) ->{
             menu.setChildren(getSonMenu(menu,organizations));
+            return menu;
+        }).collect(Collectors.toList());
+        return levelOneMenus;
+    }
+
+    @Override
+    public List<OrgUser> listOrgUser() {
+        //1,查找处所有分类.
+        List<OrgUser> orgUsers=baseMapper.selectOrgUser();
+        //2 组装成父子的树形结构
+        //2.1 找到所有的一级分类
+        List<OrgUser> levelOneMenus=orgUsers.stream().filter(orgUser->orgUser.getPid() ==0
+        ).map( (menu) ->{
+            menu.setChildren(getSonsMenu(menu,orgUsers));
             return menu;
         }).collect(Collectors.toList());
         return levelOneMenus;
@@ -147,6 +164,19 @@ public class OrganizationServiceImpl extends ServiceImpl<OrganizationMapper, Org
             //1.找到子菜单
             organization.setChildren(getSonMenu(organization,all));
             return organization;
+        }).collect(Collectors.toList());
+        return  children    ;
+    }
+
+    // org-name   组织-姓名  映射。。。。。。。。。。。。。
+    //递归查找所有菜单的子菜单  两个参数menuRoot是需要被查找子分类的菜单（当前菜单）、sonAll是所有的分类菜单
+    private List<OrgUser> getSonsMenu(OrgUser menuRoot, List<OrgUser> all) {
+        List<OrgUser> children =all.stream().filter(orgUser->{
+            return orgUser.getPid()==menuRoot.getId();
+        }).map(orgUser->{
+            //1.找到子菜单
+            orgUser.setChildren(getSonsMenu(orgUser,all));
+            return orgUser;
         }).collect(Collectors.toList());
         return  children    ;
     }

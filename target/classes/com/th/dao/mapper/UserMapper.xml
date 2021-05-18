@@ -44,10 +44,6 @@
         or user_tel  like binary concat('%',#{key} ,'%')
         or user_id_card like concat('%',#{key}  ,'%')
         or `name` like concat('%',#{key}  ,'%') )
-
-
-
-
     </select>
 
 </mapper>

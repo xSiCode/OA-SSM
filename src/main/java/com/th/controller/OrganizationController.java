@@ -3,6 +3,7 @@ package com.th.controller;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.th.entity.OrgUser;
 import com.th.entity.Organization;
 import com.th.entity.User;
 import com.th.service.OrganizationService;
@@ -36,6 +37,12 @@ public class OrganizationController {
     @PostMapping("/getTree")
     public ResponseData getOrganizationTree() {
         List<Organization> organizations = organizationService.listWithTree();
+        return ResponseData.SUCCESS().extendData("organizationTree", organizations);
+    }
+
+    @PostMapping("/getOrgUser")
+    public ResponseData getOrgUser() {
+        List<OrgUser> organizations = organizationService.listOrgUser();
         return ResponseData.SUCCESS().extendData("organizationTree", organizations);
     }
 }
