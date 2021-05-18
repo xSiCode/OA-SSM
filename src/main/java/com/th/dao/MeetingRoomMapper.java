@@ -4,6 +4,9 @@ import com.th.entity.MeetingRoom;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+import java.util.Map;
+
 /**
  * <p>
  *  Mapper 接口
@@ -15,4 +18,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface MeetingRoomMapper extends BaseMapper<MeetingRoom> {
 
+    List<Map<String, Object>> selectRoomDistinct();
 }

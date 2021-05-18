@@ -72,10 +72,8 @@ public class MatterController {
                 PageInfo page = new PageInfo(currentMatters, 7);
                 return ResponseData.SUCCESS().extendData("matter",page);
             }else {
-                                                                //对象存在，值为空
-                return ResponseData.SUCCESS().extendData("matter",matter);
+                return ResponseData.SUCCESS().extendData("matter",matter);   //对象存在，值为空
             }
-
         } catch (Exception e) {
             e.printStackTrace();
             return  ResponseData.ERROR().extendData("msg","我的我的");

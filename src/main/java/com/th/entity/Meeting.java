@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * <p>
@@ -95,6 +96,10 @@ private static final long serialVersionUID=1L;
     @TableField(exist = false)
     private String roomName;
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @TableField(exist = false)
+    private List<MeetingAttendees>attendees;
+
 
     public Meeting() {
     }
@@ -131,6 +136,27 @@ private static final long serialVersionUID=1L;
         this.note = note;
         this.roomId = roomId;
         this.roomName = roomName;
+    }
+
+    public Meeting(Integer id, String title, String content, LocalDateTime startTime,
+                   LocalDateTime endTime, String mode, Integer hostId, String hostName,
+                   Integer recorderId, String recorderName, String status, String note,
+                   Integer roomId, String roomName, List<MeetingAttendees> attendees) {
+        this.id = id;
+        this.title = title;
+        this.content = content;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.mode = mode;
+        this.hostId = hostId;
+        this.hostName = hostName;
+        this.recorderId = recorderId;
+        this.recorderName = recorderName;
+        this.status = status;
+        this.note = note;
+        this.roomId = roomId;
+        this.roomName = roomName;
+        this.attendees = attendees;
     }
 
     public Integer getId() {
@@ -249,6 +275,14 @@ private static final long serialVersionUID=1L;
         this.roomName = roomName;
     }
 
+    public List<MeetingAttendees> getAttendees() {
+        return attendees;
+    }
+
+    public void setAttendees(List<MeetingAttendees> attendees) {
+        this.attendees = attendees;
+    }
+
     @Override
     public String toString() {
         return "Meeting{" +
@@ -266,6 +300,7 @@ private static final long serialVersionUID=1L;
                 ", note='" + note + '\'' +
                 ", roomId=" + roomId +
                 ", roomName='" + roomName + '\'' +
+                ", Attendees=" + attendees +
                 '}';
     }
 }

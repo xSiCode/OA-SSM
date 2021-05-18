@@ -15,11 +15,46 @@
         <result column="status" property="status" />
         <result column="note" property="note" />
         <result column="room_id" property="roomId" />
+        <collection property="attendees" column="id"
+                    select="com.th.dao.MeetingAttendeesMapper.selectAttendeesByMeetingId" />
+
     </resultMap>
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
         id, title, content, start_time, end_time, mode, host_id, recorder_id, status, note, room_id
     </sql>
+
+
+
+
+
+
+
+
+
+
+
+
+    <resultMap id="listMeeting" extends="BaseResultMap" type="com.th.entity.Meeting">
+        <result property="hostName" column="hostName"/>
+        <result property="recorderName" column="recorderName"/>
+        <result property="roomName" column="roomName"/>
+    </resultMap>
+    <select id="selectMeetingList" resultMap="listMeeting">
+        select m.id id ,m.title title,content,
+        m.start_time start_time,
+        m.end_time end_time,
+        m.status status,
+        m.room_id room_id,
+        mode,host_id,recorder_id,note,
+        h.user_name hostName, r.user_name recorderName,mr.name roomName
+        from    t_meeting m, t_meeting_room mr,t_user h,t_user r
+        where m.room_id=mr.id
+        and h.user_id = m.host_id
+        and r.user_id = m.recorder_id
+
+    </select>
+
 
 </mapper>

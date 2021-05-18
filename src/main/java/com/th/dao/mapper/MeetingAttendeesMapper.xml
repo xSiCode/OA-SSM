@@ -16,4 +16,42 @@
         id, meeting_id, user_id, start_time, end_time
     </sql>
 
+
+
+
+
+    <resultMap id="attendeesList" type="com.th.entity.MeetingAttendees" extends="BaseResultMap">
+        <result column="meetingTitle" property="meetingTitle"/>
+        <result column="meetingRoomName" property="meetingRoomName"/>
+        <result column="userName" property="userName"/>
+    </resultMap>
+    <select id="selectAttendeesList" resultType="com.th.entity.MeetingAttendees">
+        select ma.id id,ma.meeting_id meeting_id,ma.user_id,
+        ma.start_time start_time,ma.end_time end_time,
+        m.title meetingTitle, mr.name meetingRoomName,u.user_name userName
+        from t_meeting_attendees ma,t_user u,t_meeting m , t_meeting_room mr
+        where ma.user_id = u.user_id
+        and ma.meeting_id = m.id
+        and mr.id = m.room_id
+    </select>
+    <select id="selectAttendeesByMeetingId" resultType="com.th.entity.MeetingAttendees">
+        select ma.id id,ma.meeting_id meeting_id,ma.user_id,
+        ma.start_time start_time,ma.end_time end_time,
+        m.title meetingTitle, mr.name meetingRoomName,u.user_name userName
+        from t_meeting_attendees ma,t_user u,t_meeting m , t_meeting_room mr
+        where ma.user_id = u.user_id
+        and ma.meeting_id = m.id
+        and mr.id = m.room_id
+        and ma.meeting_id = #{meetingId}
+    </select>
+    <select id="selectAttendeesByUserId" resultType="com.th.entity.MeetingAttendees">
+        select ma.id id,ma.meeting_id meeting_id,ma.user_id,
+        ma.start_time start_time,ma.end_time end_time,
+        m.title meetingTitle, mr.name meetingRoomName,u.user_name userName
+        from t_meeting_attendees ma,t_user u,t_meeting m , t_meeting_room mr
+        where ma.user_id = u.user_id
+        and ma.meeting_id = m.id
+        and mr.id = m.room_id
+        and ma.user_id = #{userId}
+    </select>
 </mapper>
