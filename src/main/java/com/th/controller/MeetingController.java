@@ -3,6 +3,7 @@ package com.th.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.github.pagehelper.PageHelper;
+import com.th.entity.Matter;
 import com.th.entity.Meeting;
 import com.th.entity.MeetingAttendees;
 import com.th.entity.MeetingRoom;
@@ -23,7 +24,7 @@ import java.util.Map;
 
 /**
  * <p>
- *  前端控制器
+ * 前端控制器
  * </p>
  *
  * @author 杨天发
@@ -48,55 +49,91 @@ public class MeetingController {
     /* = = = = = = = = = = =      以下为  添加会议      = = = = = = = = = = =     */
     //添加会议
     @PostMapping("insertMeeting")
-    public ResponseData insertMeeting(){
-
-        return  null;
+    public ResponseData insertMeeting(@RequestBody  Map<String, Object> map) {
+        //将数据放入service层处理，并返回成功插入后的会议id
+        Integer getMeetingId = null;
+        try {
+            getMeetingId = meetingService.insertMeeting(map);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseData.ERROR();
+        }
+        if (getMeetingId > 0) {
+            //插入成功，返回插入后的会议id
+            return ResponseData.SUCCESS().extendData("meetingId", getMeetingId);
+        } else {
+            return ResponseData.FAIL().extendData("msg", "时间冲突了");
+        }
     }
+
     //添加会议的草稿
     @PostMapping("insertDraft")
-    public ResponseData insertDraft(){
-
-        return  null;
+    public ResponseData insertDraft(@RequestBody  Map<String, Object> map) {
+        //将数据放入service层处理，并返回成功插入后的会议id
+        Integer getMeetingId = null;
+        try {
+            getMeetingId = meetingService.insertDraft(map);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseData.ERROR();
+        }
+        if (getMeetingId > 0) {
+            //插入成功，返回插入后的会议id
+            return ResponseData.SUCCESS().extendData("meetingId", getMeetingId);
+        } else {
+            return ResponseData.FAIL().extendData("msg", "时间冲突了");
+        }
     }
+
     /* = = = = = = = = = = =      以下为 缩略图查询      = = = = = = = = = = =     */
     @PostMapping("listAttendeesByReceive")
-    public ResponseData listAttendeesByReceive(){
-    //做为参会人员查询缩略图  状态分为 ： 待参会 /已参会
+    public ResponseData listAttendeesByReceive() {
+        //做为参会人员查询缩略图  状态分为 ： 待参会 /已参会
 
-        return  null;
+        return null;
     }
+
     @PostMapping("listAttendeesByCreator")
-    public ResponseData listAttendeesByCreator(){
-    //做为会议发起人查询缩略图  状态分为 ： 已发起/待发起
+    public ResponseData listAttendeesByCreator() {
+        //做为会议发起人查询缩略图  状态分为 ： 已发起/待发起
 
-        return  null;
+        return null;
     }
+
     @PostMapping("listAttendeesByRecorder")
-    public ResponseData listAttendeesByRecorder(){
-    //做为纪要人 查询缩略图
+    public ResponseData listAttendeesByRecorder() {
+        //做为纪要人 查询缩略图
 
-        return  null;
+        return null;
     }
+
     /* = = = = = = = = = = =      以下为 查看会议详情      = = = = = = = = = = =     */
     //根据会议id 查询
     @PostMapping("getMeetingById")
-    public ResponseData getMeetingById(){
-
-        return  null;
+    public ResponseData getMeetingById(@RequestBody Map<String, Integer> map) {
+        Integer currentId = map.get("currentMatterId");
+        Meeting currentMeeting = meetingService.getMeetingById(currentId);
+        if (currentMeeting != null) {
+            return ResponseData.SUCCESS().extendData("meeting", currentMeeting);
+        }else {
+            return ResponseData.FAIL().extendData("msg","查无该会议");
+        }
     }
+
     /* = = = = = = = = = = =      以下为 按条件搜索       = = = = = = = = = = =     */
     @PostMapping("searchMeeting")
-    public ResponseData searchMeeting(){
-    //根据  会议状态 + 会议名 | 人员名字
+    public ResponseData searchMeeting() {
+        //根据  会议状态 + 会议名 | 人员名字
 
-        return  null;
+        return null;
     }
+
     /* = = = = = = = = = = =      以下为 删除会议       = = = = = = = = = = =     */
     @PostMapping("deleteMeeting")
-    public ResponseData deleteMeeting(){
+    public ResponseData deleteMeeting() {
         //根据  会议状态[ 待发起 | 已参会 ] + 会议ids
 
-        return  null;
+        return null;
     }
 
 
@@ -104,18 +141,21 @@ public class MeetingController {
     /* = = = = = = = = = = =      以下为  会议室查询      = = = = = = = = = = =     */
     //会议室有哪些，作为选项列表展示
     @PostMapping("/getRoomDistinct")
-    public ResponseData getRoom(){
-        List<Map<String,Object>> list = meetingRoomService.listRoomDistinct();
-        return  ResponseData.SUCCESS().extendData("room",list);
+    public ResponseData getRoom() {
+        List<Map<String, Object>> list = meetingRoomService.listRoomDistinct();
+        return ResponseData.SUCCESS().extendData("room", list);
     }
-    //整个会议室的使用详情。包括使用的，空闲的。
+
+    //整个会议室的使用详情。使用的详情。
     @PostMapping("/getRoomList")
-    public ResponseData getRoomList(@RequestBody Map<String,Object> map){
+    public ResponseData getRoomList(@RequestBody Map<String, Object> map) {
         Integer needPage = (Integer) map.get("needPage");
-        PageHelper.startPage(needPage,7);
+        PageHelper.startPage(needPage, 7);
         List<MeetingRoom> list = meetingRoomService.list();
-        return  ResponseData.SUCCESS().extendData("room",list);
+        return ResponseData.SUCCESS().extendData("room", list);
     }
+
+
 
     /* = = = meetingAttendees = = = =     meetingAttendees     = = = = = meetingAttendees = = = =*/
     /* = = = = = = = = = = =      以下为  参会人员查询      = = = = = = = = = = =     */

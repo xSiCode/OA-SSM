@@ -14,6 +14,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @Class : MeetingTest
@@ -60,5 +61,10 @@ public class MeetingTest {
     public void meetingRoomList(){
         List<MeetingRoom> list = meetingRoomService.list();
         System.out.println(list);
+    }
+    @Test
+    public void listRoomDistinct(){
+        List<Map<String, Object>> maps = meetingRoomService.listRoomDistinct();
+        System.out.println(maps);
     }
 }

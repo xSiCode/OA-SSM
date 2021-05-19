@@ -7,6 +7,7 @@ import com.th.entity.MeetingAttendees;
 import com.th.service.MeetingService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mortbay.util.ajax.JSON;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -38,12 +39,21 @@ public class MeetingTest {
     public  void selectMeetingList(){
         List<Meeting> meetings = meetingMapper.selectMeetingList();
         System.out.println(meetings);
+        System.out.println(JSON.toString(meetings));
 
     }
     @Test
     public  void selectAttendeesList(){
         List<MeetingAttendees> meetings = meetingAttendeesMapper.selectAttendeesList();
         System.out.println(meetings);
+
+    }
+    @Test
+    public  void ttt(){
+        Meeting a =new Meeting();
+        a.setId(null);
+        a.setStartTime(null);
+        System.out.println(a);
 
     }
 }

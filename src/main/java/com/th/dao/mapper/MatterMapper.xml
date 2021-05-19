@@ -107,7 +107,7 @@
         from t_matter m,t_user cu
         where   m.creator_id = cu.user_id
         and     m.creator_id = #{userId}
-        and     m.status = '草稿'
+        and     m.status = '待发'
     </select>
     <select id="selectMatterCreatorSubmitBriefByUser" resultType="java.util.Map">
         select m.id matterId,m.title title,
@@ -133,7 +133,7 @@
         from t_matter m,t_user cu
         where   m.creator_id = cu.user_id
         and     m.creator_id = #{userId}
-        and     m.status = '草稿'
+        and     m.status = '待发'
         and     m.title like concat('%',#{matterName},'%')
     </select>
     <select id="selectMatterCreatorSubmitBriefByUserLike" resultType="java.util.Map">

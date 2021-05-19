@@ -5,11 +5,8 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.javafx.collections.MappingChange;
-import com.th.entity.Matter;
+import com.th.entity.*;
 import com.th.dao.MatterMapper;
-import com.th.entity.MatterAttachment;
-import com.th.entity.MatterContentConfig;
-import com.th.entity.MatterHandler;
 import com.th.service.*;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.th.utils.DataTransfer;
@@ -43,6 +40,8 @@ public class MatterServiceImpl extends ServiceImpl<MatterMapper, Matter> impleme
 
     @Autowired
     UserService userService;
+    @Autowired
+    MatterService matterService;
 
     @Autowired
     MatterHandlerService matterHandlerService;
@@ -96,7 +95,7 @@ public class MatterServiceImpl extends ServiceImpl<MatterMapper, Matter> impleme
 
     @Override
     public List<Map<String, Object>> getMatterCreatorBriefByUser(Integer currentId, String matterStatus) {
-       // String status = "";
+        // String status = "";
         List<Map<String, Object>> maps = new ArrayList<>();
         //待发，已发 区分。
         if ("待发".equals(matterStatus)) {
@@ -111,197 +110,25 @@ public class MatterServiceImpl extends ServiceImpl<MatterMapper, Matter> impleme
 
     @Override
     public Integer insertMatter(Map<String, Object> map) {
-        //分步骤 遍历map 得到  基本matter，attachment,config,handler
-        //1.1得到matter 基本信息
+        //若获取到了id 则该数据之前是草稿，则需要的处理为 覆盖
+        Integer ifId = (Integer) map.get("id"); //只有他 可能没有数据
+        //一次性得到所有数据
         String title = (String) map.get("title");
         String contentText = (String) map.get("contentText");
         Integer creatorId = (Integer) map.get("creatorId");
         LocalDateTime sendTime = DataTransfer.parseStringToDate((String) map.get("startTime"));
         LocalDateTime deadlineTime = DataTransfer.parseStringToDate((String) map.get("limitTime"));
         String status = (String) map.get("status");//已发
-        //1.2 封装到 matter 里，只含有基本信息
-        //以上的数据在t_matter中缺少 id 和 content_config_id;接下来开始封装
+        //新建对象
         Matter currentMatter = new Matter();
-        currentMatter.setTitle(title);
-        currentMatter.setContentText(contentText);
-        currentMatter.setCreatorId(creatorId);
-        currentMatter.setSendTime(sendTime);
-        currentMatter.setDeadlineTime(deadlineTime);
-        currentMatter.setStatus(status);
-        int insert = baseMapper.insert(currentMatter);
-        int matterId = -1;
-        if (insert > 0) {
-            matterId = currentMatter.getId();
-        } else {
-            System.out.println("matter:封装失败");
-            return -1;
-        }
-        /*=================================================================*/
-        //2.1得到处理人id ，再加上 matterId 最后封装到t_matter_handler
-        List<Integer> handlerIds = (List<Integer>) map.get("handlers");
-        MatterHandler currentHandler = new MatterHandler();
-        boolean saveHandler = false;
-        for (Integer currentHandlerId : handlerIds) {
-            currentHandler.setMatterId(matterId);
-            currentHandler.setHandlerId(currentHandlerId);
-             saveHandler = matterHandlerService.save(currentHandler);
-            //插入数据库中，数据库中，matter_status 默认为待办
-            if (saveHandler == false) {
-                System.out.println("mattherHandler:插入失败");
-                return -1;
-            }
-        }
-        /*=================================================================*/
-        //3.1得到附件     获得前端传过来的附件数组，[{},{},{},]
-        List<Map<String, String>> fileList = (List<Map<String, String>>) map.get("fileList");
-        //3.2 构造于entity对应的集合   以下两步构造符合 entity的 attachment
-        //3.3  将3.1 数据赋值给3.2.
-        MatterAttachment currentAttachment = new MatterAttachment();
-        boolean saveAttachment = false;
-        for (Map<String, String> currentFile : fileList) {
-            currentAttachment.setName(currentFile.get("name"));
-            currentAttachment.setData(currentFile.get("url"));
-            //关联 对应的matter_id
-            currentAttachment.setMatterId(matterId);
-             saveAttachment = matterAttachmentService.save(currentAttachment);
-            if (saveAttachment == false) {
-                System.out.println("needInsertAttachments  插入失败");
-                return -1;
-            }
-        }
-
-
-        /*=================================================================*/
-//        //4 得到 文本的配置文件
-        Map<String, String> contentConfig = (Map<String, String>) map.get("setConfig");
         MatterContentConfig currentConfig = new MatterContentConfig();
-        currentConfig.setFontBgcolor(contentConfig.get("fontBgcolor"));
-        currentConfig.setFontColor(contentConfig.get("fontColor"));
-        currentConfig.setFontFamily(contentConfig.get("fontFamily"));
-        currentConfig.setFontOblique(contentConfig.get("fontOblique"));
-        currentConfig.setFontSize(contentConfig.get("fontSize"));
-        currentConfig.setFontWeight(contentConfig.get("fontWeight"));
-        currentConfig.setLineHeight(contentConfig.get("lineHeight"));
-        currentConfig.setTextAlign(contentConfig.get("textAlign"));
-        currentConfig.setTextDecoration(contentConfig.get("textDecoration"));
-
-        boolean save = matterContentConfigService.save(currentConfig);
-        if (save == true) {
-            //将matterContentConfigService操作后得到的主键赋值给 t_matter
-            currentMatter.setContentConfigId(currentConfig.getId());
-            int i = baseMapper.updateById(currentMatter);
-            if (i < 0) {
-                System.out.println("currentConfig 插入matter失败");
-                return -1;
-            }
-        }
-        return matterId;
-    }
-
-    @Override
-    public Integer insertDraft(Map<String, Object> map) {
-//        此方法与insertMatter的唯一区别就是，可能存在null值，因此需要判断每一个属性的值
-        //分步骤 遍历map 得到  基本matter，attachment,config,handler
-        //1.1得到matter 基本信息
-        // 以下3条前端必须传 title过来
-        String title = (String) map.get("title");
-        Integer creatorId = (Integer) map.get("creatorId");
-        String status = (String) map.get("status");
-        //判断是否为空，是否使用参数传过来的值
-        String contentText = (String) map.get("contentText");
-        String sendTimeStr = (String) map.get("startTime");
-        String deadlineTimeStr = (String) map.get("limitTime");
-        if(contentText == null || contentText.isEmpty()){
-            contentText="你的事项暂无内容:by通航学院办公自动化";
-        }
-        LocalDateTime sendTime =  LocalDateTime.now();
-        LocalDateTime deadlineTime = LocalDateTime.now();
-        if(sendTimeStr != null && sendTimeStr.length()>0 ){
-            sendTime = DataTransfer.parseStringToDate((String) map.get("startTime"));
-        }
-        if(deadlineTimeStr != null && deadlineTimeStr.length()>0 ){
-            deadlineTime = DataTransfer.parseStringToDate((String) map.get("limitTime"));
-        }
-
-        //1.2 封装到 matter 里，只含有基本信息
-        //以上的数据在t_matter中缺少 id 和 content_config_id;接下来开始封装
-        Matter currentMatter = new Matter();
-        currentMatter.setTitle(title);
-        currentMatter.setContentText(contentText);
-        currentMatter.setCreatorId(creatorId);
-        currentMatter.setSendTime(sendTime);
-        currentMatter.setDeadlineTime(deadlineTime);
-        currentMatter.setStatus(status);//"草稿"
-        int insert = baseMapper.insert(currentMatter);
-        int matterId = -1;
-        if (insert > 0) {
-            matterId = currentMatter.getId();
-        } else {
-            System.out.println("matter:封装失败");
-            return -1;
-        }
-        /*=================================================================*/
-        //2.1得到处理人id ，再加上 matterId 最后封装到t_matter_handler
-        List<Integer> handlerIds = (List<Integer>) map.get("handlers");
-        if( ! handlerIds.isEmpty()){
-            System.out.println("- - - - - - -1 - - - - - - -");
-            System.out.println(handlerIds);
-
-            MatterHandler currentHandler = new MatterHandler();
-            boolean saveHandler = false;
-            for (Integer currentHandlerId : handlerIds) {
-                currentHandler.setMatterId(matterId);
-                currentHandler.setHandlerId(currentHandlerId);
-                saveHandler = matterHandlerService.save(currentHandler);
-
-                System.out.println("- - - - - -2 - - - - - - - -");
-                System.out.println(currentHandler);
-
-                //插入数据库中，数据库中，matter_status 默认为待办
-                if (saveHandler == false) {
-                    System.out.println("mattherHandler:插入失败");
-                    return -1;
-                }
-            }
-        }
-
-        /*=================================================================*/
-        //3.1得到附件     获得前端传过来的附件数组，[{},{},{},]
-        List<Map<String, String>> fileList = (List<Map<String, String>>) map.get("fileList");
-        //3.2 构造于entity对应的集合   以下两步构造符合 entity的 attachment
-        //3.3  将3.1 数据赋值给3.2.
-
-        if(!fileList.isEmpty()){
-            System.out.println("- - - - - - a- - - - - - - -");
-            System.out.println(fileList);
-
-            MatterAttachment currentAttachment = new MatterAttachment();
-            boolean saveAttachment = false;
-            for (Map<String, String> currentFile : fileList) {
-                currentAttachment.setName(currentFile.get("name"));
-                currentAttachment.setData(currentFile.get("url"));
-                //关联 对应的matter_id
-                currentAttachment.setMatterId(matterId);
-
-
-                System.out.println("- - - - - -b - - - - - - - -");
-                saveAttachment = matterAttachmentService.save(currentAttachment);
-                if (saveAttachment == false) {
-                    System.out.println("needInsertAttachments  插入失败");
-                    return -1;
-                }
-
-            }
-        }
-
-
-
-
-        /*=================================================================*/
-//        //4 得到 文本的配置文件
-        Map<String, String> contentConfig = (Map<String, String>) map.get("setConfig");
-        if( !contentConfig.isEmpty() ){
-            MatterContentConfig currentConfig = new MatterContentConfig();
+        MatterHandler currentHandler = new MatterHandler();
+        MatterAttachment currentAttachment = new MatterAttachment();
+        //根据 是否为首次插入分流
+        if (ifId == null) {
+            //首次新增，直接插入
+            /*     === = = = = = = = ==   config  = = = = = = = = = == = = = = = = = */
+            Map<String, String> contentConfig = (Map<String, String>) map.get("setConfig");
             currentConfig.setFontBgcolor(contentConfig.get("fontBgcolor"));
             currentConfig.setFontColor(contentConfig.get("fontColor"));
             currentConfig.setFontFamily(contentConfig.get("fontFamily"));
@@ -311,28 +138,328 @@ public class MatterServiceImpl extends ServiceImpl<MatterMapper, Matter> impleme
             currentConfig.setLineHeight(contentConfig.get("lineHeight"));
             currentConfig.setTextAlign(contentConfig.get("textAlign"));
             currentConfig.setTextDecoration(contentConfig.get("textDecoration"));
-
-            boolean save = matterContentConfigService.save(currentConfig);
-            if (save == true) {
-                //将matterContentConfigService操作后得到的主键赋值给 t_matter
-                currentMatter.setContentConfigId(currentConfig.getId());
-                int i = baseMapper.updateById(currentMatter);
-                if (i > 0) {
-                } else {
-                    System.out.println("currentConfig 插入matter失败");
+            boolean saveConfig = matterContentConfigService.save(currentConfig);
+            if (saveConfig == false) {
+                System.out.println("currentConfig 插入失败");
+                return -1;
+            }
+            /*     === = = = = = = = ==   matter  = = = = = = = = = == = = = = = = = */
+            currentMatter.setContentConfigId(currentConfig.getId());
+            currentMatter.setTitle(title);
+            currentMatter.setContentText(contentText);
+            currentMatter.setCreatorId(creatorId);
+            currentMatter.setSendTime(sendTime);
+            currentMatter.setDeadlineTime(deadlineTime);
+            currentMatter.setStatus("已发");//已发
+            boolean saveMatter = matterService.save(currentMatter);
+            if (saveMatter == false) {
+                System.out.println("保存matter失败");
+                return -1;
+            }
+            /*     === = = = = = = = ==   handlers  = = = = = = = = = == = = = = = = = */
+            List<Integer> handlerIds = (List<Integer>) map.get("handlers");
+            for (Integer currentHandlerId : handlerIds) {
+                currentHandler.setMatterId(currentMatter.getId());
+                currentHandler.setHandlerId(currentHandlerId);
+                currentHandler.setMatterStatus("待办");
+                boolean saveHandler = matterHandlerService.save(currentHandler);
+                //插入数据库中，数据库中，matter_status 默认为待办
+                if (saveHandler == false) {
+                    System.out.println("Handler:插入失败");
+                    return -1;
+                }
+            }
+            /*     === = = = = = = = ==   attachment  = = = = = = = = = == = = = = = = = */
+            List<Map<String, String>> fileList = (List<Map<String, String>>) map.get("fileList");
+            //3.2 构造于entity对应的集合   以下两步构造符合 entity的 attachment
+            //3.3  将3.1 数据赋值给3.2.
+            for (Map<String, String> currentFile : fileList) {
+                currentAttachment.setMatterId(currentMatter.getId());
+                currentAttachment.setName(currentFile.get("name"));
+                currentAttachment.setData(currentFile.get("url"));
+                //关联 对应的matter_id
+                boolean saveAttachment = matterAttachmentService.save(currentAttachment);
+                if (saveAttachment == false) {
+                    System.out.println("Attachments  插入失败");
+                    return -1;
+                }
+            }
+        } else {
+            //之前保存为草稿，下面将做数据替换
+            //为了代码不更改，我这里通过 ifId 获取其他对应属性。
+            Matter oldMatter = baseMapper.selectById(ifId);
+            MatterContentConfig oldConfig = matterContentConfigService.getById(oldMatter.getContentConfigId());
+            /*     === = = = = = = = ==   config  = = = = = = = = = == = = = = = = = */
+            Map<String, String> contentConfig = (Map<String, String>) map.get("setConfig");
+            currentConfig.setId(oldConfig.getId());
+            currentConfig.setFontBgcolor(contentConfig.get("fontBgcolor"));
+            currentConfig.setFontColor(contentConfig.get("fontColor"));
+            currentConfig.setFontFamily(contentConfig.get("fontFamily"));
+            currentConfig.setFontOblique(contentConfig.get("fontOblique"));
+            currentConfig.setFontSize(contentConfig.get("fontSize"));
+            currentConfig.setFontWeight(contentConfig.get("fontWeight"));
+            currentConfig.setLineHeight(contentConfig.get("lineHeight"));
+            currentConfig.setTextAlign(contentConfig.get("textAlign"));
+            currentConfig.setTextDecoration(contentConfig.get("textDecoration"));
+            boolean saveConfig = matterContentConfigService.updateById(currentConfig);
+            if (saveConfig == false) {
+                System.out.println("config  修改失败");
+                return -1;
+            }
+            /*     === = = = = = = = ==   matter  = = = = = = = = = == = = = = = = = */
+            currentMatter.setId(ifId);
+            currentMatter.setContentConfigId(currentConfig.getId());
+            currentMatter.setTitle(title);
+            currentMatter.setContentText(contentText);
+            currentMatter.setCreatorId(creatorId);
+            currentMatter.setSendTime(sendTime);
+            currentMatter.setDeadlineTime(deadlineTime);
+            currentMatter.setStatus("已发");//已发
+            boolean updateMatter = matterService.updateById(currentMatter);  //因为 之前已经有了id ,所以这里update
+            if (updateMatter == false) {
+                System.out.println("保存matter失败");
+                return -1;
+            }
+            /*     === = = = = = = = ==   handlers  = = = = = = = = = == = = = = = = = */
+            //由于handlers可以有多个，为了避免存草稿时，处理人员多，发送时，处理人员少造成的问题，这里先删除原来保存为草稿的处理人员信息
+            //判断原来事项是否有处理人，有则删除
+            List<MatterHandler> ifOldHandler = matterHandlerService
+                    .list(new QueryWrapper<MatterHandler>().eq("matter_id", ifId));
+            if (ifOldHandler != null) {
+                //由于handlers可以有多个，为了避免存草稿时，处理人员多，发送时，处理人员少造成的问题，这里先删除原来保存为草稿的处理人员信息
+                boolean deleteHandler = matterHandlerService
+                        .remove(new QueryWrapper<MatterHandler>().eq("matter_id", ifId));
+                if (deleteHandler == false) {
+                    System.out.println("清楚处理人员失败");
+                    return -1;
+                }
+            }
+            List<Integer> handlerIds = (List<Integer>) map.get("handlers");
+            for (Integer currentHandlerId : handlerIds) {
+                currentHandler.setMatterId(currentMatter.getId());
+                currentHandler.setHandlerId(currentHandlerId);
+                currentHandler.setMatterStatus("待办");
+                boolean saveHandler = matterHandlerService.save(currentHandler);
+                //插入数据库中，数据库中，matter_status 默认为待办
+                if (saveHandler == false) {
+                    System.out.println("Handler:插入失败");
+                    return -1;
+                }
+            }
+            /*     === = = = = = = = ==   attachment  = = = = = = = = = == = = = = = = = */
+            //需要原来的 草稿的 事项 对应的 附件得有，不然就是 remove(null) 删除所有了
+            List<MatterAttachment> ifOldAttachment = matterAttachmentService
+                    .list(new QueryWrapper<MatterAttachment>().eq("matter_id", ifId));
+            if(ifOldAttachment != null ) {
+                boolean deleteAttachment = matterAttachmentService.remove(new QueryWrapper<MatterAttachment>().eq("matter_id", ifId));
+                if (deleteAttachment == false) {
+                    System.out.println("清除附件失败");
+                    return -1;
+                }
+            }
+            List<Map<String, String>> fileList = (List<Map<String, String>>) map.get("fileList");
+            //3.2 构造于entity对应的集合   以下两步构造符合 entity的 attachment
+            //3.3  将3.1 数据赋值给3.2.
+            for (Map<String, String> currentFile : fileList) {
+                currentAttachment.setMatterId(currentMatter.getId());
+                currentAttachment.setName(currentFile.get("name"));
+                currentAttachment.setData(currentFile.get("url"));
+                //关联 对应的matter_id
+                boolean saveAttachment = matterAttachmentService.save(currentAttachment);
+                if (saveAttachment == false) {
+                    System.out.println("Attachments  插入失败");
                     return -1;
                 }
             }
         }
-        return matterId;
+        return currentMatter.getId();
     }
 
     @Override
-    public Integer deleteMatterBatch(List<Map<String,Object>> listMap) {
+    public Integer insertDraft(Map<String, Object> map) {
+        //若获取到了id 则该数据之前是草稿，则需要的处理为 覆盖
+        Integer ifId = (Integer) map.get("id"); //只有他 可能没有数据
+        //一次性得到所有数据
+        String title = (String) map.get("title");                    // json参数中必须有
+        String contentText = (String) map.get("contentText");
+        Integer creatorId = (Integer) map.get("creatorId");
+        LocalDateTime sendTime = DataTransfer.parseStringToDate((String) map.get("startTime"));   // json参数中必须有
+        LocalDateTime deadlineTime = null;
+        String deadlineTimeStr = (String) map.get("limitTime");
+        if (deadlineTimeStr != null && deadlineTimeStr.length() > 0) {
+            deadlineTime = DataTransfer.parseStringToDate((String) map.get("limitTime"));
+        }
+        String status = (String) map.get("status");//待发
+        //新建对象
+        Matter currentMatter = new Matter();
+        MatterContentConfig currentConfig = new MatterContentConfig();
+        MatterHandler currentHandler = new MatterHandler();
+        MatterAttachment currentAttachment = new MatterAttachment();
+        //根据 是否为首次插入分流
+        if (ifId == null) {
+            //首次新增，直接插入
+            /*     === = = = = = = = ==   config  = = = = = = = = = == = = = = = = = */
+            Map<String, String> contentConfig = (Map<String, String>) map.get("setConfig");
+            if (contentConfig != null) {
+                currentConfig.setFontBgcolor(  contentConfig.get("fontBgcolor")  );
+                currentConfig.setFontColor(contentConfig.get("fontColor"));
+                currentConfig.setFontFamily(contentConfig.get("fontFamily"));
+                currentConfig.setFontOblique(contentConfig.get("fontOblique"));
+                currentConfig.setFontSize(contentConfig.get("fontSize"));
+                currentConfig.setFontWeight(contentConfig.get("fontWeight"));
+                currentConfig.setLineHeight(contentConfig.get("lineHeight"));
+                currentConfig.setTextAlign(contentConfig.get("textAlign"));
+                currentConfig.setTextDecoration(contentConfig.get("textDecoration"));
+                boolean saveConfig = matterContentConfigService.save(currentConfig);
+                if (saveConfig == false) {
+                    System.out.println("currentConfig 插入失败");
+                    return -1;
+                }
+            }
+            /*     === = = = = = = = ==   matter  = = = = = = = = = == = = = = = = = */
+            currentMatter.setContentConfigId(currentConfig.getId());   // 如果没用config ,问题也不大
+            currentMatter.setTitle(title);
+            currentMatter.setContentText(contentText);
+            currentMatter.setCreatorId(creatorId);
+            currentMatter.setSendTime(sendTime);
+            currentMatter.setDeadlineTime(deadlineTime);
+            currentMatter.setStatus("待发");//已发
+            boolean saveMatter = matterService.save(currentMatter);
+            if (saveMatter == false) {
+                System.out.println("保存matter失败");
+                return -1;
+            }
+            /*     === = = = = = = = ==   handlers  = = = = = = = = = == = = = = = = = */
+            List<Integer> handlerIds = (List<Integer>) map.get("handlers");
+            if (handlerIds != null) {
+                for (Integer currentHandlerId : handlerIds) {
+                    currentHandler.setMatterId(currentMatter.getId());
+                    currentHandler.setHandlerId(currentHandlerId);
+                    currentHandler.setMatterStatus("草稿");
+                    boolean saveHandler = matterHandlerService.save(currentHandler);
+                    //插入数据库中，数据库中，matter_status 默认为待办
+                    if (saveHandler == false) {
+                        System.out.println("Handler:插入失败");
+                        return -1;
+                    }
+                }
+            }
+            /*     === = = = = = = = ==   attachment  = = = = = = = = = == = = = = = = = */
+            List<Map<String, String>> fileList = (List<Map<String, String>>) map.get("fileList");
+            if (fileList != null) {
+                for (Map<String, String> currentFile : fileList) {
+                    currentAttachment.setMatterId(currentMatter.getId());
+                    currentAttachment.setName(currentFile.get("name"));
+                    currentAttachment.setData(currentFile.get("url"));
+                    //关联 对应的matter_id
+                    boolean saveAttachment = matterAttachmentService.save(currentAttachment);
+                    if (saveAttachment == false) {
+                        System.out.println("Attachments  插入失败");
+                        return -1;
+                    }
+                }
+            }
+            //  以上 id = null  的操作已经完成
+        } else {
+            //之前保存为草稿，下面将做数据替换
+            //为了代码不更改，我这里通过 ifId 获取其他对应属性。
+            Matter oldMatter = baseMapper.selectById(ifId);
+            MatterContentConfig oldConfig = matterContentConfigService.getById(oldMatter.getContentConfigId());
+            /*     === = = = = = = = ==   config  = = = = = = = = = == = = = = = = = */
+            Map<String, String> contentConfig = (Map<String, String>) map.get("setConfig");
+            if (contentConfig != null) {
+                currentConfig.setId(oldConfig.getId());
+                currentConfig.setFontBgcolor(contentConfig.get("fontBgcolor"));
+                currentConfig.setFontColor(contentConfig.get("fontColor"));
+                currentConfig.setFontFamily(contentConfig.get("fontFamily"));
+                currentConfig.setFontOblique(contentConfig.get("fontOblique"));
+                currentConfig.setFontSize(contentConfig.get("fontSize"));
+                currentConfig.setFontWeight(contentConfig.get("fontWeight"));
+                currentConfig.setLineHeight(contentConfig.get("lineHeight"));
+                currentConfig.setTextAlign(contentConfig.get("textAlign"));
+                currentConfig.setTextDecoration(contentConfig.get("textDecoration"));
+                boolean saveConfig = matterContentConfigService.updateById(currentConfig);
+                if (saveConfig == false) {
+                    System.out.println("config  修改失败");
+                    return -1;
+                }
+            }
+            /*     === = = = = = = = ==   matter  = = = = = = = = = == = = = = = = = */
+            currentMatter.setId(ifId);
+            currentMatter.setContentConfigId(currentConfig.getId());
+            currentMatter.setTitle(title);
+            currentMatter.setContentText(contentText);
+            currentMatter.setCreatorId(creatorId);
+            currentMatter.setSendTime(sendTime);
+            currentMatter.setDeadlineTime(deadlineTime);
+            currentMatter.setStatus("待发");//存为草稿，事项状态为 待发
+            boolean updateMatter = matterService.updateById(currentMatter);  //因为 之前已经有了id ,所以这里update
+            if (updateMatter == false) {
+                System.out.println("保存matter失败");
+                return -1;
+            }
+            /*     === = = = = = = = ==   handlers  = = = = = = = = = == = = = = = = = */
+            //由于handlers可以有多个，为了避免存草稿时，处理人员多，发送时，处理人员少造成的问题，这里先删除原来保存为草稿的处理人员信息
+            //判断原来事项是否有处理人，有则删除
+            List<MatterHandler> ifOldHandler = matterHandlerService
+                    .list(new QueryWrapper<MatterHandler>().eq("matter_id", ifId));
+            if (ifOldHandler != null && ifOldHandler.size()>0) {
+                boolean deleteHandler = matterHandlerService
+                        .remove(new QueryWrapper<MatterHandler>().eq("matter_id", ifId));
+                if (deleteHandler == false) {
+                    System.out.println("清楚处理人员失败"+ifOldHandler + ifOldHandler.size());
+                    return -1;
+                }
+            }
+            List<Integer> handlerIds = (List<Integer>) map.get("handlers");
+            for (Integer currentHandlerId : handlerIds) {
+                currentHandler.setMatterId(currentMatter.getId());
+                currentHandler.setHandlerId(currentHandlerId);
+                currentHandler.setMatterStatus("草稿");
+                boolean saveHandler = matterHandlerService.save(currentHandler);
+                //插入数据库中，数据库中，matter_status 默认为待办
+                if (saveHandler == false) {
+                    System.out.println("Handler:插入失败");
+                    return -1;
+                }
+            }
+            /*     === = = = = = = = ==   attachment  = = = = = = = = = == = = = = = = = */
+            //需要原来的 草稿的 事项 对应的 附件得有，不然就是 remove(null) 删除所有了
+            List<MatterAttachment> ifOldAttachment = matterAttachmentService
+                    .list(new QueryWrapper<MatterAttachment>().eq("matter_id", ifId));
+            if (ifOldAttachment != null) {
+                //原来的事项有对应 的附件，这里把它清除掉，再重新添加
+                boolean deleteAttachment = matterAttachmentService
+                        .remove(new QueryWrapper<MatterAttachment>().eq("matter_id", ifId));
+                if (deleteAttachment == false) {
+                    System.out.println("清除附件失败");
+                    return -1;
+                }
+            }
+            List<Map<String, String>> fileList = (List<Map<String, String>>) map.get("fileList");
+            for (Map<String, String> currentFile : fileList) {
+                currentAttachment.setMatterId(currentMatter.getId());
+                currentAttachment.setName(currentFile.get("name"));
+                currentAttachment.setData(currentFile.get("url"));
+                //关联 对应的matter_id
+                boolean saveAttachment = matterAttachmentService.save(currentAttachment);
+                if (saveAttachment == false) {
+                    System.out.println("Attachments  插入失败");
+                    return -1;
+                }
+            }
+        }
+        return currentMatter.getId();
+
+
+    }
+
+    @Override
+    public Integer deleteMatterBatch(List<Map<String, Object>> listMap) {
         // 四种状态 只有 已办/待发  可以删除 事项
-        for( Map<String,Object> currentMap : listMap){
+        for (Map<String, Object> currentMap : listMap) {
             Integer integer = deleteMatter(currentMap);
-            if(integer<0){
+            if (integer < 0) {
                 System.out.println("删除事项失败");
                 return -1;
             }
@@ -341,25 +468,25 @@ public class MatterServiceImpl extends ServiceImpl<MatterMapper, Matter> impleme
     }
 
     @Override
-    public List<Map<String,Object>> getMatterByMatterName(Map<String, Object> map) {
-        String matterStatus=  (String) map.get("matterStatus");
-        String needMatterName=  (String) map.get("matterTitle");
+    public List<Map<String, Object>> getMatterByMatterName(Map<String, Object> map) {
+        String matterStatus = (String) map.get("matterStatus");
+        String needMatterName = (String) map.get("matterTitle");
         Integer currentUserId = (Integer) map.get("userId");
-        if ("待发".equals(matterStatus) ||"已发".equals(matterStatus)){
+        if ("待发".equals(matterStatus) || "已发".equals(matterStatus)) {
             //从事项发送者的角度
             List<Map<String, Object>> maps = new ArrayList<>();
             //待发，已发 区分。
             if ("待发".equals(matterStatus)) {
-                maps = baseMapper.selectMatterCreatorDraftBriefByUserLike(currentUserId,needMatterName);
+                maps = baseMapper.selectMatterCreatorDraftBriefByUserLike(currentUserId, needMatterName);
             } else if ("已发".equals(matterStatus)) {
-                maps = baseMapper.selectMatterCreatorSubmitBriefByUserLike(currentUserId,needMatterName);
+                maps = baseMapper.selectMatterCreatorSubmitBriefByUserLike(currentUserId, needMatterName);
             }
             return maps;
         }
         /*==============================================================================================*/
-        if("待办".equals(matterStatus) || "已办".equals(matterStatus) ){
+        if ("待办".equals(matterStatus) || "已办".equals(matterStatus)) {
             //加个详细的处理状态
-            List<Map<String, Object>> listMap = baseMapper.selectMatterHandlerBriefByUserLike(currentUserId, matterStatus,needMatterName);
+            List<Map<String, Object>> listMap = baseMapper.selectMatterHandlerBriefByUserLike(currentUserId, matterStatus, needMatterName);
             System.out.println(listMap);
             String timeLimitStr = "";
             String completedTimeStr = "";
@@ -398,42 +525,42 @@ public class MatterServiceImpl extends ServiceImpl<MatterMapper, Matter> impleme
         // 四种状态 只有 已办/待发  可以删除 事项
         String matterStatus = (String) map.get("matterStatus");
         Integer currentMatterId = (Integer) map.get("currentMatterId");
-        Integer currentUserId   = (Integer) map.get("currentUserId");
-        if("已办".equals(matterStatus)){
+        Integer currentUserId = (Integer) map.get("currentUserId");
+        if ("已办".equals(matterStatus)) {
             //删除自己这个处理人，其他不用实现文本格式配置，附件不用删除
             boolean removeHandler = matterHandlerService.remove(new QueryWrapper<MatterHandler>()
-                    .eq("matter_id",currentMatterId)
-                    .eq("matter_status","已办")
-                    .eq("handler_id",currentUserId));
-            if( removeHandler !=true)  {
+                    .eq("matter_id", currentMatterId)
+                    .eq("matter_status", "已办")
+                    .eq("handler_id", currentUserId));
+            if (removeHandler != true) {
                 System.out.println("移除removeHandler 失败");
                 return -1;
             }
             //
-        }else if("待发".equals(matterStatus)){
+        } else if ("待发".equals(matterStatus)) {
             Matter currentMatter = baseMapper.selectOne(new QueryWrapper<Matter>()
                     .eq("id", currentMatterId)
                     .eq("creator_id", currentUserId)
-                    .eq("status","草稿"));
+                    .eq("status", "草稿"));
             //删除关联的附件
             System.out.println(currentMatterId);
 
             //判断该事项是否有对应的附件
-            MatterAttachment currentAttachment = matterAttachmentService.getOne(new QueryWrapper<MatterAttachment>()
+            List<MatterAttachment> deleteAttachment = matterAttachmentService.list(new QueryWrapper<MatterAttachment>()
                     .eq("matter_id", currentMatterId));
-            if( currentAttachment !=null  ){
+            if (deleteAttachment != null) {
                 boolean b = matterAttachmentService.remove(new QueryWrapper<MatterAttachment>()
-                        .eq("matter_id",currentMatterId));
-                if(b!= true){
+                        .eq("matter_id", currentMatterId));
+                if (b == false) {
                     System.out.println("删除附件失败");
                     return -1;
                 }
             }
             //判断该事项是否有对应的处理人
-            MatterHandler currentMatterHandler = matterHandlerService.getOne(new QueryWrapper<MatterHandler>().eq("matter_id", currentMatterId));
-            if(currentMatterHandler!=null){
-                boolean matter_id = matterHandlerService.remove(new QueryWrapper<MatterHandler>().eq("matter_id", currentMatterId));
-                if(matter_id!= true){
+            List<MatterHandler> deleteHandlers = matterHandlerService.list(new QueryWrapper<MatterHandler>().eq("matter_id", currentMatterId));
+            if (deleteHandlers != null) {
+                boolean removeHandler = matterHandlerService.remove(new QueryWrapper<MatterHandler>().eq("matter_id", currentMatterId));
+                if (removeHandler ==false) {
                     System.out.println("删除处理人失败");
                     return -1;
                 }
@@ -441,22 +568,22 @@ public class MatterServiceImpl extends ServiceImpl<MatterMapper, Matter> impleme
 
             //删除事项
             //因为configId是外键值，所以，我这里选择先提取去configId,再删除事项。  或者先不matter.configId置空，再删除config
-            Integer currentConfigId =currentMatter.getContentConfigId();
+            Integer currentConfigId = currentMatter.getContentConfigId();
             System.out.println(currentConfigId);
             int i = baseMapper.deleteById(currentMatterId);
-            if(i<0){
+            if (i < 0) {
                 System.out.println("删除事项出错");
                 return -1;
             }
             //删除 关联的 文本格式文件
-             if( currentConfigId !=null ){
-                 boolean removeById = matterContentConfigService.removeById(currentConfigId);
-                 if(removeById!= true){
-                     System.out.println("删除文本格式文件失败");
-                     return -1;
-                 }
-             }
-        }else {
+            if (currentConfigId != null) {
+                boolean removeById = matterContentConfigService.removeById(currentConfigId);
+                if (removeById != true) {
+                    System.out.println("删除文本格式文件失败");
+                    return -1;
+                }
+            }
+        } else {
             System.out.println("参数错误");
             return -1;
         }

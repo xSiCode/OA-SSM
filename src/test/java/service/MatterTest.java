@@ -1,6 +1,9 @@
 package service;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.th.entity.Matter;
+import com.th.entity.MatterAttachment;
+import com.th.service.MatterAttachmentService;
 import com.th.service.MatterService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -29,6 +32,9 @@ public class MatterTest {
     @Autowired
     MatterService matterService;
 
+    @Autowired
+    MatterAttachmentService matterAttachmentService;
+
     @Test
     public void getMatterByMatterId(){
         Matter currentMatter = matterService.getMatterByMatterId(4);
@@ -52,7 +58,10 @@ public class MatterTest {
 
     @Test
     public void insertMatter(){
-
+        boolean deleteAttachment = matterAttachmentService.remove(null);//删除全部，太可怕了
+        if(deleteAttachment== false){
+            System.out.println("清除附件失败");
+        }
 
     }
 

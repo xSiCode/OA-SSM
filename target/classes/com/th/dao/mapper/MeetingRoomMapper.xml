@@ -17,7 +17,7 @@
         id, room_id, name, status, start_time, end_time
     </sql>
     <select id="selectRoomDistinct" resultType="java.util.Map">
-        SELECT room_id ,`name` FROM t_meeting_room WHERE `status`='空闲'  GROUP BY room_id;
+        SELECT id ,`name` FROM t_room ;
     </select>
 
 </mapper>
