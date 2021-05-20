@@ -3,6 +3,7 @@ package com.th.service;
 import com.th.entity.Meeting;
 import com.baomidou.mybatisplus.extension.service.IService;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -21,4 +22,13 @@ public interface MeetingService extends IService<Meeting> {
 
     Meeting getMeetingById(Integer currentId);
 
+    List<Map<String, Object>> getMeetingReceiveByUser(Integer currentUserId, String currentMeetingStatus);
+
+    List<Map<String, Object>> getMeetingCreatorByUser(Integer currentUserId, String currentMeetingStatus);
+
+    List<Map<String, Object>> getMeetingByMeetingName(Map<String, Object> map);
+
+    Integer deleteMeetingBatch(List<Map<String, Object>> listMap);
+
+    Integer setMeetingStatus();
 }

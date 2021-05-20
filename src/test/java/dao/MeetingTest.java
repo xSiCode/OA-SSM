@@ -13,6 +13,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @Class : MeetingTest
@@ -56,4 +57,12 @@ public class MeetingTest {
         System.out.println(a);
 
     }
+    @Test
+    public  void selectMeetingReceiveByUser(){
+        List<Map<String, Object>> maps = meetingMapper.selectMeetingReceiveByUser(1011, "待开");
+        System.out.println(maps);
+        System.out.println( JSON.toString(maps));
+
+    }
+
 }

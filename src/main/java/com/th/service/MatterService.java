@@ -32,6 +32,8 @@ public interface MatterService extends IService<Matter> {
 
     List<Map<String,Object>> getMatterByMatterName(Map<String, Object> map);
 
+    Integer completedMatter(Map<String, Integer> map);
+
     //得到事项发起人的缩略图， 发送userId,事项状态【submit,draft】
 
    // List<Map<String,Object>> getMatterCreatorBriefByUser(Integer currentId , String matterStatus );

@@ -94,15 +94,12 @@ public class MatterController {
         List<Map<String, Object>> listMap = null;
         try {
             listMap = matterService.getMatterHandlerBriefByUser(currentUserId, currentStatus);
-            System.out.println(JSON.toString(listMap));
+            PageInfo page = new PageInfo(listMap, 7);
+            return ResponseData.SUCCESS().extendData("matterHandler", page);
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseData.FAIL();
         }
-
-        PageInfo page = new PageInfo(listMap, 7);
-        return ResponseData.SUCCESS().extendData("matterHandler", page);
-
     }
         //status:draft,submit
     @PostMapping("getMatterByCreator")
@@ -115,7 +112,6 @@ public class MatterController {
         List<Map<String, Object>> listMap = null;
         try {
             listMap = matterService.getMatterCreatorBriefByUser(currentUserId, currentStatus);
-            System.out.println(JSON.toString(listMap));
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseData.FAIL();
@@ -174,13 +170,28 @@ public class MatterController {
             return ResponseData.ERROR().extendData("msg","删除事项失败，后端处理错误");
         }
         if(flag>0){
-            return  ResponseData.SUCCESS().extendData("matterInsertedId",flag);//extendData("insertMatter",insertMatter);
+            return  ResponseData.SUCCESS().extendData("deleteNums",flag);//extendData("insertMatter",insertMatter);
         }else {
             return ResponseData.FAIL().extendData("msg","删除成功，返回失败");
         }
     }
 
+    //处理人员完成事项
+    @PostMapping("completedMatter")
+    public ResponseData completedMatter(@RequestBody Map<String,Integer> map){
 
+        try {
+             Integer matterId = matterService.completedMatter(map);
+           if(matterId>0){
+               return ResponseData.SUCCESS().extendData("matterId", matterId);
+           }else {
+               return ResponseData.FAIL();
+           }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseData.ERROR();
+        }
+    }
 
 
 }

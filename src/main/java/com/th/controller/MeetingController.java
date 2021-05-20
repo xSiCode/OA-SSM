@@ -3,6 +3,7 @@ package com.th.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import com.th.entity.Matter;
 import com.th.entity.Meeting;
 import com.th.entity.MeetingAttendees;
@@ -49,7 +50,7 @@ public class MeetingController {
     /* = = = = = = = = = = =      以下为  添加会议      = = = = = = = = = = =     */
     //添加会议
     @PostMapping("insertMeeting")
-    public ResponseData insertMeeting(@RequestBody  Map<String, Object> map) {
+    public ResponseData insertMeeting(@RequestBody Map<String, Object> map) {
         //将数据放入service层处理，并返回成功插入后的会议id
         Integer getMeetingId = null;
         try {
@@ -68,7 +69,7 @@ public class MeetingController {
 
     //添加会议的草稿
     @PostMapping("insertDraft")
-    public ResponseData insertDraft(@RequestBody  Map<String, Object> map) {
+    public ResponseData insertDraft(@RequestBody Map<String, Object> map) {
         //将数据放入service层处理，并返回成功插入后的会议id
         Integer getMeetingId = null;
         try {
@@ -86,25 +87,49 @@ public class MeetingController {
     }
 
     /* = = = = = = = = = = =      以下为 缩略图查询      = = = = = = = = = = =     */
-    @PostMapping("listAttendeesByReceive")
-    public ResponseData listAttendeesByReceive() {
+    @PostMapping("listMeetingByReceive")
+    public ResponseData listMeetingByReceive(@RequestBody Map<String, String> map) {
+        Integer needPage = Integer.parseInt(map.get("needPage"));       //分页参数
         //做为参会人员查询缩略图  状态分为 ： 待参会 /已参会
-
-        return null;
+        Integer currentUserId = Integer.parseInt(map.get("userId"));  // attendees 之一的一个   + 一个纪要人
+        String currentMeetingStatus = map.get("currentStatus");   //  meetingStatus:待开/已开 ---》 attendees:待参会/已参会
+        //类似于定时器的功能，再执行分页查询之前执行该函数，作用是 修改会议状态 ，   显示为： 待开，已开，开会中
+        meetingService.setMeetingStatus();
+        PageHelper.startPage(needPage, 7);
+        try {
+            List<Map<String, Object>> listMap = meetingService.getMeetingReceiveByUser(currentUserId, currentMeetingStatus);
+            if (listMap != null) {
+                PageInfo page = new PageInfo(listMap, 7);
+                return ResponseData.SUCCESS().extendData("meetingHandler", page);
+            }else {
+                return ResponseData.SUCCESS().extendData("msg","没有该会议对应状态的信息");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseData.ERROR();
+        }
     }
 
-    @PostMapping("listAttendeesByCreator")
-    public ResponseData listAttendeesByCreator() {
+    @PostMapping("listMeetingByCreator")
+    public ResponseData listMeetingByCreator(@RequestBody Map<String, String> map) {
         //做为会议发起人查询缩略图  状态分为 ： 已发起/待发起
-
-        return null;
-    }
-
-    @PostMapping("listAttendeesByRecorder")
-    public ResponseData listAttendeesByRecorder() {
-        //做为纪要人 查询缩略图
-
-        return null;
+        Integer needPage = Integer.parseInt(map.get("needPage"));       //分页参数
+        Integer currentUserId = Integer.parseInt(map.get("userId"));  // attendees 之一的一个   + 一个纪要人
+        String currentMeetingStatus = map.get("currentStatus");   //  meetingStatus:待开/已开 ---》 attendees:待参会/已参会
+        meetingService.setMeetingStatus();
+        PageHelper.startPage(needPage, 7);
+        try {
+            List<Map<String, Object>> listMap = meetingService.getMeetingCreatorByUser(currentUserId, currentMeetingStatus);
+            if (listMap != null) {
+                PageInfo page = new PageInfo(listMap, 7);
+                return ResponseData.SUCCESS().extendData("meetingCreator", page);
+            }else {
+                return ResponseData.SUCCESS().extendData("msg","没有该会议对应状态的信息");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseData.ERROR();
+        }
     }
 
     /* = = = = = = = = = = =      以下为 查看会议详情      = = = = = = = = = = =     */
@@ -115,25 +140,47 @@ public class MeetingController {
         Meeting currentMeeting = meetingService.getMeetingById(currentId);
         if (currentMeeting != null) {
             return ResponseData.SUCCESS().extendData("meeting", currentMeeting);
-        }else {
-            return ResponseData.FAIL().extendData("msg","查无该会议");
+        } else {
+            return ResponseData.FAIL().extendData("msg", "查无该会议");
         }
     }
 
     /* = = = = = = = = = = =      以下为 按条件搜索       = = = = = = = = = = =     */
-    @PostMapping("searchMeeting")
-    public ResponseData searchMeeting() {
+    @PostMapping("getMeetingByMeetingName")
+    public ResponseData getMeetingByMeetingName(@RequestBody Map<String, Object> map) {
         //根据  会议状态 + 会议名 | 人员名字
-
-        return null;
+        try {
+            PageHelper.startPage( (Integer)map.get("needPage") ,7  );
+            List<Map<String,Object>> currentMeetings  = meetingService.getMeetingByMeetingName(map);
+            if(currentMeetings !=null){
+                PageInfo page = new PageInfo(currentMeetings, 7);
+                return ResponseData.SUCCESS().extendData("meeting",page);
+            }else {
+                return ResponseData.FAIL().extendData("msg","没有该会议对应状态的信息");   //对象存在，值为空
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return  ResponseData.ERROR().extendData("msg","我的我的");
+        }
     }
 
     /* = = = = = = = = = = =      以下为 删除会议       = = = = = = = = = = =     */
     @PostMapping("deleteMeeting")
-    public ResponseData deleteMeeting() {
-        //根据  会议状态[ 待发起 | 已参会 ] + 会议ids
-
-        return null;
+    public ResponseData deleteMeeting( @RequestBody List< Map<String,Object> > listMap) {
+        //host: 待发起  已发起（待开/已开）   receiver: 待开  已开
+        //1.将传入的 map 在service层处理
+        Integer flag = null;
+        try {
+            flag = meetingService.deleteMeetingBatch(listMap);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseData.ERROR().extendData("msg","删除事项失败，后端处理错误");
+        }
+        if(flag>0){
+            return  ResponseData.SUCCESS().extendData("deleteNums",flag);//extendData("insertMatter",insertMatter);
+        }else {
+            return ResponseData.FAIL().extendData("msg","删除成功，返回失败");
+        }
     }
 
 
@@ -154,11 +201,5 @@ public class MeetingController {
         List<MeetingRoom> list = meetingRoomService.list();
         return ResponseData.SUCCESS().extendData("room", list);
     }
-
-
-
-    /* = = = meetingAttendees = = = =     meetingAttendees     = = = = = meetingAttendees = = = =*/
-    /* = = = = = = = = = = =      以下为  参会人员查询      = = = = = = = = = = =     */
-
 }
 

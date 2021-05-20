@@ -66,16 +66,15 @@ public class MatterServiceImpl extends ServiceImpl<MatterMapper, Matter> impleme
         System.out.println(listMap);
         String timeLimitStr = "";
         String completedTimeStr = "";
-        String currentTImeStr = "";
+        String currentTimeStr = "";
+        LocalDateTime localDateTime = LocalDateTime.now();
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        currentTimeStr = dateTimeFormatter.format(localDateTime);
         int flag = 0;
         if ("待办".equals(matterStatus)) {    //处理者 没有完成时间,只能用截止时间跟当前时间比较
-            LocalDateTime localDateTime = LocalDateTime.now();
-            DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-            currentTImeStr = dateTimeFormatter.format(localDateTime);
-
             for (Map<String, Object> map : listMap) {    //遍历每一个map 并根据时间比较，改变状态
                 timeLimitStr = map.get("timeLimit").toString();
-                flag = currentTImeStr.compareTo(timeLimitStr); //<=0 ,代办  >0 未完成
+                flag = currentTimeStr.compareTo(timeLimitStr); //<=0 ,代办  >0 未完成
                 if (flag > 0) {
                     map.put("state", "未完成");
                 }
@@ -139,7 +138,7 @@ public class MatterServiceImpl extends ServiceImpl<MatterMapper, Matter> impleme
             currentConfig.setTextAlign(contentConfig.get("textAlign"));
             currentConfig.setTextDecoration(contentConfig.get("textDecoration"));
             boolean saveConfig = matterContentConfigService.save(currentConfig);
-            if (saveConfig == false) {
+            if (!saveConfig) {
                 System.out.println("currentConfig 插入失败");
                 return -1;
             }
@@ -152,7 +151,7 @@ public class MatterServiceImpl extends ServiceImpl<MatterMapper, Matter> impleme
             currentMatter.setDeadlineTime(deadlineTime);
             currentMatter.setStatus("已发");//已发
             boolean saveMatter = matterService.save(currentMatter);
-            if (saveMatter == false) {
+            if (!saveMatter) {
                 System.out.println("保存matter失败");
                 return -1;
             }
@@ -164,7 +163,7 @@ public class MatterServiceImpl extends ServiceImpl<MatterMapper, Matter> impleme
                 currentHandler.setMatterStatus("待办");
                 boolean saveHandler = matterHandlerService.save(currentHandler);
                 //插入数据库中，数据库中，matter_status 默认为待办
-                if (saveHandler == false) {
+                if (!saveHandler) {
                     System.out.println("Handler:插入失败");
                     return -1;
                 }
@@ -179,7 +178,7 @@ public class MatterServiceImpl extends ServiceImpl<MatterMapper, Matter> impleme
                 currentAttachment.setData(currentFile.get("url"));
                 //关联 对应的matter_id
                 boolean saveAttachment = matterAttachmentService.save(currentAttachment);
-                if (saveAttachment == false) {
+                if (!saveAttachment) {
                     System.out.println("Attachments  插入失败");
                     return -1;
                 }
@@ -225,14 +224,14 @@ public class MatterServiceImpl extends ServiceImpl<MatterMapper, Matter> impleme
             //判断原来事项是否有处理人，有则删除
             List<MatterHandler> ifOldHandler = matterHandlerService
                     .list(new QueryWrapper<MatterHandler>().eq("matter_id", ifId));
-            if (ifOldHandler != null) {
+            if (ifOldHandler != null || ifOldHandler.size() > 0) {
                 //由于handlers可以有多个，为了避免存草稿时，处理人员多，发送时，处理人员少造成的问题，这里先删除原来保存为草稿的处理人员信息
                 boolean deleteHandler = matterHandlerService
                         .remove(new QueryWrapper<MatterHandler>().eq("matter_id", ifId));
-                if (deleteHandler == false) {
-                    System.out.println("清楚处理人员失败");
-                    return -1;
-                }
+//                if (deleteHandler == false) {
+//                    System.out.println("清楚处理人员失败");
+//                    return -1;
+//                }
             }
             List<Integer> handlerIds = (List<Integer>) map.get("handlers");
             for (Integer currentHandlerId : handlerIds) {
@@ -244,18 +243,20 @@ public class MatterServiceImpl extends ServiceImpl<MatterMapper, Matter> impleme
                 if (saveHandler == false) {
                     System.out.println("Handler:插入失败");
                     return -1;
+
                 }
             }
             /*     === = = = = = = = ==   attachment  = = = = = = = = = == = = = = = = = */
             //需要原来的 草稿的 事项 对应的 附件得有，不然就是 remove(null) 删除所有了
             List<MatterAttachment> ifOldAttachment = matterAttachmentService
                     .list(new QueryWrapper<MatterAttachment>().eq("matter_id", ifId));
-            if(ifOldAttachment != null ) {
-                boolean deleteAttachment = matterAttachmentService.remove(new QueryWrapper<MatterAttachment>().eq("matter_id", ifId));
-                if (deleteAttachment == false) {
-                    System.out.println("清除附件失败");
-                    return -1;
-                }
+            if (ifOldAttachment != null || ifOldAttachment.size() > 0) {
+                boolean deleteAttachment = matterAttachmentService
+                        .remove(new QueryWrapper<MatterAttachment>().eq("matter_id", ifId));
+//                if (deleteAttachment == false) {
+//                    System.out.println("清除附件失败v -256");
+//                    return -1;
+//                }
             }
             List<Map<String, String>> fileList = (List<Map<String, String>>) map.get("fileList");
             //3.2 构造于entity对应的集合   以下两步构造符合 entity的 attachment
@@ -301,7 +302,7 @@ public class MatterServiceImpl extends ServiceImpl<MatterMapper, Matter> impleme
             /*     === = = = = = = = ==   config  = = = = = = = = = == = = = = = = = */
             Map<String, String> contentConfig = (Map<String, String>) map.get("setConfig");
             if (contentConfig != null) {
-                currentConfig.setFontBgcolor(  contentConfig.get("fontBgcolor")  );
+                currentConfig.setFontBgcolor(contentConfig.get("fontBgcolor"));
                 currentConfig.setFontColor(contentConfig.get("fontColor"));
                 currentConfig.setFontFamily(contentConfig.get("fontFamily"));
                 currentConfig.setFontOblique(contentConfig.get("fontOblique"));
@@ -403,11 +404,11 @@ public class MatterServiceImpl extends ServiceImpl<MatterMapper, Matter> impleme
             //判断原来事项是否有处理人，有则删除
             List<MatterHandler> ifOldHandler = matterHandlerService
                     .list(new QueryWrapper<MatterHandler>().eq("matter_id", ifId));
-            if (ifOldHandler != null && ifOldHandler.size()>0) {
+            if (ifOldHandler != null && ifOldHandler.size() > 0) {
                 boolean deleteHandler = matterHandlerService
                         .remove(new QueryWrapper<MatterHandler>().eq("matter_id", ifId));
                 if (deleteHandler == false) {
-                    System.out.println("清楚处理人员失败"+ifOldHandler + ifOldHandler.size());
+                    System.out.println("清楚处理人员失败" + ifOldHandler + ifOldHandler.size());
                     return -1;
                 }
             }
@@ -431,10 +432,10 @@ public class MatterServiceImpl extends ServiceImpl<MatterMapper, Matter> impleme
                 //原来的事项有对应 的附件，这里把它清除掉，再重新添加
                 boolean deleteAttachment = matterAttachmentService
                         .remove(new QueryWrapper<MatterAttachment>().eq("matter_id", ifId));
-                if (deleteAttachment == false) {
-                    System.out.println("清除附件失败");
-                    return -1;
-                }
+//                if (deleteAttachment == false) {
+//                    System.out.println("清除附件失败 435");
+//                    return -1;
+//                }
             }
             List<Map<String, String>> fileList = (List<Map<String, String>>) map.get("fileList");
             for (Map<String, String> currentFile : fileList) {
@@ -504,10 +505,10 @@ public class MatterServiceImpl extends ServiceImpl<MatterMapper, Matter> impleme
                         currentMap.put("state", "未完成");
                     }
                 }
-            } else if ("已办".equals(matterStatus)) {
+            } else {
                 for (Map<String, Object> currentMap : listMap) {
-                    timeLimitStr = (String) currentMap.get("timeLimit").toString();
-                    completedTimeStr = (String) currentMap.get("completedTime").toString();
+                    timeLimitStr = currentMap.get("timeLimit").toString();
+                    completedTimeStr = currentMap.get("completedTime").toString();
                     flag = completedTimeStr.compareTo(timeLimitStr);// <=0 已办  ； >0 截止日期小于完成日期：超时完成。
                     if (flag > 0) {
                         currentMap.put("state", "超时完成");
@@ -518,6 +519,25 @@ public class MatterServiceImpl extends ServiceImpl<MatterMapper, Matter> impleme
         }
         System.out.println("没找到");
         return null;
+    }
+
+    @Override
+    public Integer completedMatter(Map<String, Integer> map) {
+        Integer currentUserId = map.get("userId");
+        Integer currentMatterId = map.get("matterId");
+        LocalDateTime currentTime = LocalDateTime.now();
+        MatterHandler currentMatterHandler = matterHandlerService
+                .getOne(new QueryWrapper<MatterHandler>()
+                        .eq("matter_id", currentMatterId)
+                        .eq("handler_id", currentUserId));
+        currentMatterHandler.setCompletedTime(currentTime);
+        currentMatterHandler.setMatterStatus("已办");
+        boolean updateById = matterHandlerService.updateById(currentMatterHandler);
+        if (!updateById) {
+            System.out.println("修改失败");
+            return -1;
+        }
+        return currentMatterHandler.getMatterId();
     }
 
     //用于批量删除。
@@ -541,7 +561,7 @@ public class MatterServiceImpl extends ServiceImpl<MatterMapper, Matter> impleme
             Matter currentMatter = baseMapper.selectOne(new QueryWrapper<Matter>()
                     .eq("id", currentMatterId)
                     .eq("creator_id", currentUserId)
-                    .eq("status", "草稿"));
+                    .eq("status", "待发"));
             //删除关联的附件
             System.out.println(currentMatterId);
 
@@ -551,19 +571,19 @@ public class MatterServiceImpl extends ServiceImpl<MatterMapper, Matter> impleme
             if (deleteAttachment != null) {
                 boolean b = matterAttachmentService.remove(new QueryWrapper<MatterAttachment>()
                         .eq("matter_id", currentMatterId));
-                if (b == false) {
-                    System.out.println("删除附件失败");
-                    return -1;
-                }
+//                if (b == false) {
+//                    System.out.println("删除附件失败");
+//                    return -1;
+//                }
             }
             //判断该事项是否有对应的处理人
             List<MatterHandler> deleteHandlers = matterHandlerService.list(new QueryWrapper<MatterHandler>().eq("matter_id", currentMatterId));
             if (deleteHandlers != null) {
                 boolean removeHandler = matterHandlerService.remove(new QueryWrapper<MatterHandler>().eq("matter_id", currentMatterId));
-                if (removeHandler ==false) {
-                    System.out.println("删除处理人失败");
-                    return -1;
-                }
+//                if (removeHandler ==false) {
+//                    System.out.println("删除处理人失败");
+//                    return -1;
+//                }
             }
 
             //删除事项
