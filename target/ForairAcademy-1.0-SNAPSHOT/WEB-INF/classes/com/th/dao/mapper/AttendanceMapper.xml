@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.th.dao.AttendanceMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.th.entity.Attendance">
+        <id column="id" property="id" />
+        <result column="clock_time" property="clockTime" />
+        <result column="user_id" property="userId" />
+        <result column="site" property="site" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, clock_time, user_id, site
+    </sql>
+
+    <resultMap id="listAttendance" extends="BaseResultMap" type="com.th.entity.Attendance">
+        <result column="user_name" property="userName"/>
+    </resultMap>
+    <select id="selectAttendance" resultMap="listAttendance">
+        select id ,clock_time,a.user_id,site,u.user_name
+        from t_attendance a inner join t_user u on a.user_id = u.user_id
+        where a.user_id = #{param1}
+    </select>
+    <select id="selectAttendanceOne" resultMap="listAttendance">
+        select id ,clock_time,a.user_id,site,u.user_name
+        from t_attendance a inner join t_user u on a.user_id = u.user_id
+        where a.id = #{param1}
+    </select>
+</mapper>
