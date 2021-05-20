@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.th.dao.MeetingMapper">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, title, content, start_time, end_time, mode, host_id, recorder_id, status, note, room_id
+    </sql>
+    <!-- 通用查询映射结果  对应entity 中meeting= 原t_meeting + 3个名字 +参会人员list  -->
+    <resultMap id="BaseResultMap" type="com.th.entity.Meeting">
+        <id column="id" property="id"/>
+        <result column="title" property="title"/>
+        <result column="content" property="content"/>
+        <result column="start_time" property="startTime"/>
+        <result column="end_time" property="endTime"/>
+        <result column="mode" property="mode"/>
+        <result column="host_id" property="hostId"/>
+        <result column="recorder_id" property="recorderId"/>
+        <result column="status" property="status"/>
+        <result column="note" property="note"/>
+        <result column="room_id" property="roomId"/>
+        <collection property="attendees" column="id"
+                    select="com.th.dao.MeetingAttendeesMapper.selectAttendeesByMeetingId"/>
+
+    </resultMap>
+
+
+    <resultMap id="listMeeting" extends="BaseResultMap" type="com.th.entity.Meeting">
+        <result property="hostName" column="hostName"/>
+        <result property="recorderName" column="recorderName"/>
+        <result property="roomName" column="roomName"/>
+    </resultMap>
+    <select id="selectMeetingList" resultMap="listMeeting">
+        select m.id id ,m.title title,content,
+        m.start_time start_time,
+        m.end_time end_time,
+        m.status status,
+        m.room_id room_id,
+        mode,host_id,recorder_id,note,
+        h.user_name hostName, r.user_name recorderName,mr.name roomName
+        from    t_meeting m, t_meeting_room mr,t_user h,t_user r
+        where m.room_id=mr.id
+        and h.user_id = m.host_id
+        and r.user_id = m.recorder_id
+    </select>
+    <select id="selectMeetingById" resultMap="listMeeting">
+                select m.id id ,m.title title,content,
+        m.start_time start_time,
+        m.end_time end_time,
+        m.status status,
+        m.room_id room_id,
+        mode,host_id,recorder_id,note,
+        h.user_name hostName, r.user_name recorderName,mr.name roomName
+        from    t_meeting m, t_meeting_room mr,t_user h,t_user r
+        where m.room_id=mr.id
+        and h.user_id = m.host_id
+        and r.user_id = m.recorder_id
+        and m.id= #{meetingId}
+    </select>
+    <!--    不用 inner join   压根就不能编译。 笛卡尔表集 太大了-->
+    <select id="selectMeetingReceiveByUser" resultType="java.util.Map">
+        select m.title title , m.start_time startTime , m.end_time endTime, m.status status,m.note note,m.mode mode,
+               u.user_name attendeeName,  r.user_name recoderName ,h.user_name hostname
+        from t_meeting_attendees ma
+            inner join  t_user u on ma.user_id =u.user_id
+            inner join t_meeting m on m.id = ma.meeting_id
+            inner join t_user r on m.recorder_id = r.user_id
+            inner join t_user h on m.host_id = h.user_id
+        where   m.status = #{currentMeetingStatus}
+        and   ma.user_id = #{currentUserId}
+    </select>
+    <select id="selectMeetingCreatorByUser" resultType="java.util.Map">
+        select m.title title , m.start_time startTime , m.end_time endTime, m.status status,m.note note,m.mode mode,
+               r.user_name recoderName ,h.user_name hostname
+        from   t_meeting m
+            inner join t_user r on m.recorder_id = r.user_id
+            inner join  t_user h on m.host_id = h.user_id
+        where   m.status like concat('%',#{currentMeetingStatus})
+        and   m.host_id = #{currentUserId}
+    </select>
+    <select id="selectMeetingCreatorByMeetingTitle" resultType="java.util.Map">
+        select m.title title , m.start_time startTime , m.end_time endTime, m.status status,m.note note,m.mode mode,
+               r.user_name recoderName ,h.user_name hostname
+        from   t_meeting m
+            inner join t_user r on m.recorder_id = r.user_id
+            inner join  t_user h on m.host_id = h.user_id
+        where   m.status like concat('%',#{tempStatus})
+        and   m.host_id = #{currentUserId}
+        and m.title like  concat('%',#{title},'%')
+    </select>
+    <select id="selectMeetingReceiveByMeetingTitle" resultType="java.util.Map">
+        select m.title title , m.start_time startTime , m.end_time endTime, m.status status,m.note note,m.mode mode,
+               u.user_name attendeeName,  r.user_name recoderName ,h.user_name hostname
+        from t_meeting_attendees ma
+            inner join  t_user u on ma.user_id =u.user_id
+            inner join t_meeting m on m.id = ma.meeting_id
+            inner join t_user r on m.recorder_id = r.user_id
+            inner join t_user h on m.host_id = h.user_id
+        where   m.status = #{satus}
+        and   ma.user_id = #{currentUserId}
+        and m.title like  concat('%',#{title},'%')
+    </select>
+
+</mapper>
