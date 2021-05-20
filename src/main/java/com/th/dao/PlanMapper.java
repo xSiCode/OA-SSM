@@ -16,7 +16,7 @@ import java.util.List;
  */
 @Repository
 public interface PlanMapper extends BaseMapper<Plan> {
-    List<Plan> selectListAll();
+    List<Plan> selectListAll(Integer userId);
 
     Plan selectPlanOne(Integer id);
 }

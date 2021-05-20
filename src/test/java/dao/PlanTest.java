@@ -36,7 +36,7 @@ public class PlanTest {
 
     @Test
     public  void selectListAll(){
-        List<Plan> meetings = planMapper.selectListAll();
+        List<Plan> meetings = planMapper.selectListAll(1004);
         System.out.println(meetings);
         System.out.println(JSON.toString(meetings));
 

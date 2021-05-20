@@ -40,8 +40,8 @@ public class PlanController {
     private PlanService planService;
     /* - - - - - -- - - - -   查看计划详情 - -  - - - - - - - - -  -*/
     @PostMapping("getPlanById")
-    public ResponseData getPlanById(@RequestBody Integer id){
-        Plan currentPlan =  planMapper.selectPlanOne(id);
+    public ResponseData getPlanById(@RequestBody  Map<String,Integer> map){
+        Plan currentPlan =  planMapper.selectPlanOne(map.get("planId"));
         if(currentPlan!=null){
             return ResponseData.SUCCESS().extendData("plans",currentPlan);
         }
@@ -52,7 +52,7 @@ public class PlanController {
     @PostMapping("list")
     public ResponseData list(@RequestBody Map<String ,Integer> map){
         PageHelper.startPage(map.get("needPage"),7);
-        List<Plan> plans = planMapper.selectListAll();
+        List<Plan> plans = planMapper.selectListAll(  map.get("userId")        );
         if(plans!=null){
             PageInfo page = new PageInfo(plans,7);
             return ResponseData.SUCCESS().extendData("plans",page);
@@ -79,8 +79,8 @@ public class PlanController {
     }
     /* - - - - - -- - - - -   删除计划 - -  - - - - - - - - -  -*/
     @PostMapping("delete")
-    public ResponseData delete(@RequestBody Integer planId){
-        boolean b = planService.removeById(planId);
+    public ResponseData delete(@RequestBody Map<String ,Integer> map ){
+        boolean b = planService.removeById(map.get("planId"));
         if(b){
             return ResponseData.SUCCESS();
         }
