@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.th.dao.LeaveMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.th.entity.Leave">
+        <id column="id" property="id" />
+        <result column="applicant_id" property="applicantId" />
+        <result column="start_time" property="startTime" />
+        <result column="end_time" property="endTime" />
+        <result column="reason" property="reason" />
+        <result column="tel" property="tel" />
+        <result column="site" property="site" />
+        <result column="category" property="category" />
+        <result column="recipient_id" property="recipientId" />
+        <result column="approve_id" property="approveId" />
+        <result column="audit_opinion" property="auditOpinion" />
+        <result column="status" property="status" />
+    </resultMap>
+
+    <resultMap id="leaveEntity" type="com.th.entity.Leave" extends="BaseResultMap">
+        <result property="applicantName" column="applicant_name"/>
+        <result property="recipientName" column="recipient_name"/>
+        <result property="approveName" column="approve_name"/>
+    </resultMap>
+
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, applicant_id, start_time, end_time, reason, tel, site, category, recipient_id, approve_id,audit_opinion, status
+    </sql>
+    <sql id="leaveColumnEntity">
+        l.id ,l.applicant_id,l.start_time,l.end_time,l.reason , l.tel ,
+        l.site , l.category , l.recipient_id, l.approve_id,l.audit_opinion,l.status,
+         `at`.user_id applicant_name,
+         `rt`.user_id recipient_name,
+         `ae`.user_id approve_name
+    </sql>
+
+
+    <select id="selectLeaveById" resultMap="leaveEntity">
+        select <include refid="leaveColumnEntity"/>
+        from t_leave l
+            inner join t_user `at` on   l.applicant_id = `at`.user_id
+            inner join t_user rt   on   l.recipient_id =   rt.user_id
+            inner join t_user ae   on   l.approve_id   =   ae.user_id
+        where
+            l.id = #{leaveId}
+    </select>
+    <select id="listApplicantIds" resultType="java.lang.Integer">
+        select  l.id from t_leave l where l.status = '待审核'
+    </select>
+
+</mapper>
