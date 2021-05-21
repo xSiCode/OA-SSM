@@ -219,11 +219,12 @@ public class MeetingServiceImpl extends ServiceImpl<MeetingMapper, Meeting> impl
         String endTimeStr = (String) map.get("endTime");
         LocalDateTime startTime =null ;
         LocalDateTime endTime =null ;
-        if (startTimeStr != null || startTimeStr.length() > 0) {
+        if (startTimeStr != null && startTimeStr.length() > 0) {
              startTime = DataTransfer.parseStringToDate(startTimeStr);
         }
-        if (endTimeStr != null || endTimeStr.length() > 0) {
+        if (endTimeStr != null && endTimeStr.length() > 0) {
             endTime = DataTransfer.parseStringToDate(endTimeStr);
+            System.out.println("endTime="+endTime);
         }
         String mode = (String) map.get("mode");                                                // json参数中必须有
         Integer hostId = (Integer) map.get("hostId");
