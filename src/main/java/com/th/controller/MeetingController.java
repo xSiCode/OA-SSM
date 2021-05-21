@@ -122,7 +122,7 @@ public class MeetingController {
             List<Map<String, Object>> listMap = meetingService.getMeetingCreatorByUser(currentUserId, currentMeetingStatus);
             if (listMap != null) {
                 PageInfo page = new PageInfo(listMap, 7);
-                return ResponseData.SUCCESS().extendData("meetingCreator", page);
+                return ResponseData.SUCCESS().extendData("meetingHandler", page);
             }else {
                 return ResponseData.SUCCESS().extendData("msg","没有该会议对应状态的信息");
             }
@@ -136,7 +136,7 @@ public class MeetingController {
     //根据会议id 查询
     @PostMapping("getMeetingById")
     public ResponseData getMeetingById(@RequestBody Map<String, Integer> map) {
-        Integer currentId = map.get("currentMatterId");
+        Integer currentId = map.get("currentMeetingId");
         Meeting currentMeeting = meetingService.getMeetingById(currentId);
         if (currentMeeting != null) {
             return ResponseData.SUCCESS().extendData("meeting", currentMeeting);
@@ -154,7 +154,7 @@ public class MeetingController {
             List<Map<String,Object>> currentMeetings  = meetingService.getMeetingByMeetingName(map);
             if(currentMeetings !=null){
                 PageInfo page = new PageInfo(currentMeetings, 7);
-                return ResponseData.SUCCESS().extendData("meeting",page);
+                return ResponseData.SUCCESS().extendData("meetingHandler",page);
             }else {
                 return ResponseData.FAIL().extendData("msg","没有该会议对应状态的信息");   //对象存在，值为空
             }
