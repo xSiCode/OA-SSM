@@ -21,18 +21,7 @@ import java.time.LocalDateTime;
  */
 @Service
 public class MatterHandlerServiceImpl extends ServiceImpl<MatterHandlerMapper, MatterHandler> implements MatterHandlerService {
-    @Autowired
-    private Matter matter;
-    @Autowired
-    private MatterHandler matterHandler;
-    @Autowired
-    private MatterMapper matterMapper;
-    @Autowired
-    private MatterHandlerMapper matterHandlerMapper;
 
-    LocalDateTime startTime;
-    LocalDateTime deadlineTime;
-    LocalDateTime completeTime;
 
     @Override
     public boolean setHandlerStatus_by_matter_handler(String matterStatus,LocalDateTime startTime,

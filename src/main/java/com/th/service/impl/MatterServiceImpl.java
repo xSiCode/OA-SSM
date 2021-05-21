@@ -63,7 +63,6 @@ public class MatterServiceImpl extends ServiceImpl<MatterMapper, Matter> impleme
     public List<Map<String, Object>> getMatterHandlerBriefByUser(Integer currentId, String matterStatus) {
         //加个详细的处理状态
         List<Map<String, Object>> listMap = baseMapper.selectMatterHandlerBriefByUser(currentId, matterStatus);
-        System.out.println(listMap);
         String timeLimitStr = "";
         String completedTimeStr = "";
         String currentTimeStr = "";
@@ -589,7 +588,6 @@ public class MatterServiceImpl extends ServiceImpl<MatterMapper, Matter> impleme
             //删除事项
             //因为configId是外键值，所以，我这里选择先提取去configId,再删除事项。  或者先不matter.configId置空，再删除config
             Integer currentConfigId = currentMatter.getContentConfigId();
-            System.out.println(currentConfigId);
             int i = baseMapper.deleteById(currentMatterId);
             if (i < 0) {
                 System.out.println("删除事项出错");

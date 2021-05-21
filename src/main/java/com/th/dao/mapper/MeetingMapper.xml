@@ -60,7 +60,7 @@
     <!--    不用 inner join   压根就不能编译。 笛卡尔表集 太大了-->
     <select id="selectMeetingReceiveByUser" resultType="java.util.Map">
         select m.title title , m.start_time startTime , m.end_time endTime, m.status status,m.note note,m.mode mode,
-               u.user_name attendeeName,  r.user_name recoderName ,h.user_name hostname
+               u.user_name attendeeName,  r.user_name recoderName ,h.user_name hostName
         from t_meeting_attendees ma
             inner join  t_user u on ma.user_id =u.user_id
             inner join t_meeting m on m.id = ma.meeting_id
@@ -71,7 +71,7 @@
     </select>
     <select id="selectMeetingCreatorByUser" resultType="java.util.Map">
         select m.title title , m.start_time startTime , m.end_time endTime, m.status status,m.note note,m.mode mode,
-               r.user_name recoderName ,h.user_name hostname
+               r.user_name recoderName ,h.user_name hostName
         from   t_meeting m
             inner join t_user r on m.recorder_id = r.user_id
             inner join  t_user h on m.host_id = h.user_id
@@ -80,7 +80,7 @@
     </select>
     <select id="selectMeetingCreatorByMeetingTitle" resultType="java.util.Map">
         select m.title title , m.start_time startTime , m.end_time endTime, m.status status,m.note note,m.mode mode,
-               r.user_name recoderName ,h.user_name hostname
+               r.user_name recoderName ,h.user_name hostName
         from   t_meeting m
             inner join t_user r on m.recorder_id = r.user_id
             inner join  t_user h on m.host_id = h.user_id
@@ -90,7 +90,7 @@
     </select>
     <select id="selectMeetingReceiveByMeetingTitle" resultType="java.util.Map">
         select m.title title , m.start_time startTime , m.end_time endTime, m.status status,m.note note,m.mode mode,
-               u.user_name attendeeName,  r.user_name recoderName ,h.user_name hostname
+               u.user_name attendeeName,  r.user_name recoderName ,h.user_name hostName
         from t_meeting_attendees ma
             inner join  t_user u on ma.user_id =u.user_id
             inner join t_meeting m on m.id = ma.meeting_id

@@ -59,7 +59,7 @@ public class OrganizationServiceTest {
 
     @Test
     public void listParentPathsById(){
-        List<Integer> ids =organizationService.listParentPathsById(62);
+        List<Integer> ids =organizationService.listParentPathsById(221);
         System.out.println(ids);
     }
 
@@ -129,5 +129,10 @@ public class OrganizationServiceTest {
         System.out.println(JSON.toString(orgUsers));
     }
 
+    @Test
+    public void selectOrgByUserId(){
+        Integer integer = organizationMapper.selectOrgByUserId(1004);
+        System.out.println(integer);
+    }
 
 }

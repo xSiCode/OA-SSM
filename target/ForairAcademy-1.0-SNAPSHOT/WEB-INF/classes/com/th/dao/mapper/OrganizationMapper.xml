@@ -34,4 +34,9 @@
     <select id="getUserIdNameByOrgId" resultType="map">
             select user_id id  ,user_name name from t_user where organization_id = #{currentOrgId}
     </select>
+    <select id="selectOrgByUserId" resultType="java.lang.Integer">
+        select u.organization_id id
+        from  t_user u
+        where u.user_id = #{userId}
+    </select>
 </mapper>

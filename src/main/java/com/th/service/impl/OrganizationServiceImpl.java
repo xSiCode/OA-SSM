@@ -88,6 +88,12 @@ public class OrganizationServiceImpl extends ServiceImpl<OrganizationMapper, Org
     }
 
     @Override
+    public Integer getOrgIdByUserId(Integer userId) {
+        Integer OrgId= baseMapper.selectOrgByUserId(userId);
+        return OrgId;
+    }
+
+    @Override
     public List<Organization> listParentPathsWithTreeById(Integer organizationId) {
         organization= baseMapper.selectById(organizationId);
         List<Organization> paths=new ArrayList<>();

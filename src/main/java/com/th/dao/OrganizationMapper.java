@@ -5,6 +5,7 @@ import com.th.entity.Organization;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.MapKey;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -29,4 +30,5 @@ public interface OrganizationMapper extends BaseMapper<Organization> {
     @MapKey("id")
     List< Map<String,String> > getUserIdNameByOrgId(Integer currentOrgId);
 
+    Integer selectOrgByUserId(@Param("userId") Integer userId);
 }

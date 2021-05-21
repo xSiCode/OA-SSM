@@ -30,6 +30,8 @@ public interface OrganizationService extends IService<Organization> {
     // 得到 当前 id  父路径 id串
     List<Integer> listParentPathsById(Integer organizationId);
 
+    Integer getOrgIdByUserId(Integer userId);
+
     // 得到 当前 id  父路径 树状
     List<Organization> listParentPathsWithTreeById(Integer organizationId);
 

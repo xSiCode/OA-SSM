@@ -214,8 +214,17 @@ public class MeetingServiceImpl extends ServiceImpl<MeetingMapper, Meeting> impl
         //以下 都有可能不能获取到数据
         String title = (String) map.get("title");                                               // json参数中必须有
         String content = (String) map.get("content");
-        LocalDateTime startTime = DataTransfer.parseStringToDate((String) map.get("startTime"));
-        LocalDateTime endTime = DataTransfer.parseStringToDate((String) map.get("endTime"));
+        //时间判断空
+        String startTimeStr = (String) map.get("startTime");
+        String endTimeStr = (String) map.get("endTime");
+        LocalDateTime startTime =null ;
+        LocalDateTime endTime =null ;
+        if (startTimeStr != null || startTimeStr.length() > 0) {
+             startTime = DataTransfer.parseStringToDate(startTimeStr);
+        }
+        if (endTimeStr != null || endTimeStr.length() > 0) {
+            endTime = DataTransfer.parseStringToDate(endTimeStr);
+        }
         String mode = (String) map.get("mode");                                                // json参数中必须有
         Integer hostId = (Integer) map.get("hostId");
         Integer recorderId = (Integer) map.get("recorderId");
@@ -369,7 +378,7 @@ public class MeetingServiceImpl extends ServiceImpl<MeetingMapper, Meeting> impl
     @Override
     public Meeting getMeetingById(Integer currentId) {
 
-        return  baseMapper.selectMeetingById(currentId);
+        return baseMapper.selectMeetingById(currentId);
     }
 
     /* = = = = = = = = = = =      以下为 缩略图查询 receive      = = = = = = = = = = =     */
@@ -378,7 +387,7 @@ public class MeetingServiceImpl extends ServiceImpl<MeetingMapper, Meeting> impl
         //读取出 参会人员 的会议处理状态  待开 / 已开     ----> 显示为 待参会/已参会    接下来要做进一步处理
         List<Map<String, Object>> listMap = baseMapper.selectMeetingReceiveByUser(currentUserId, currentMeetingStatus);
         //加个详细的处理状态   显示为 待参会/已参会    接下来要做进一步处理
-        LocalDateTime currentDateTime =LocalDateTime.now();
+        LocalDateTime currentDateTime = LocalDateTime.now();
         String startTimeStr = "";
         String endTimeStr = "";
         String currentTimeStr = "";
@@ -390,9 +399,9 @@ public class MeetingServiceImpl extends ServiceImpl<MeetingMapper, Meeting> impl
                 if ("待开".equals(currentMap.get("status"))) {
                     startTimeStr = currentMap.get("startTime").toString();
                     endTimeStr = currentMap.get("endTime").toString();
-                   if( currentTimeStr.compareTo(startTimeStr) >0 && currentTimeStr.compareTo(endTimeStr)<0){
+                    if (currentTimeStr.compareTo(startTimeStr) > 0 && currentTimeStr.compareTo(endTimeStr) < 0) {
                         currentMap.put("state", "正在开会");
-                   }
+                    }
                     currentMap.put("status", "待参会");
                 } else if ("已开".equals(currentMap.get("status"))) {
                     currentMap.put("status", "已参会");
@@ -439,18 +448,18 @@ public class MeetingServiceImpl extends ServiceImpl<MeetingMapper, Meeting> impl
         List<Map<String, Object>> maps = new ArrayList<>();
         //根据状态分流
         System.out.println(map);
-        if( "待发起".equals(status)  || "已发起".equals(status) ){
+        if ("待发起".equals(status) || "已发起".equals(status)) {
             String tempStatus;
             if ("待发起".equals(status)) {
                 tempStatus = "起";
-            } else{
+            } else {
                 tempStatus = "开";
             }
-            return baseMapper.selectMeetingCreatorByMeetingTitle(currentUserId, title,tempStatus);
+            return baseMapper.selectMeetingCreatorByMeetingTitle(currentUserId, title, tempStatus);
             ////////////////////////////////
-        }else if( "待开".equals(status)  || "已开".equals(status) ){
+        } else if ("待开".equals(status) || "已开".equals(status)) {
             //读取出 参会人员 的会议处理状态  待开 / 已开     ----> 显示为 待参会/已参会    接下来要做进一步处理
-            List<Map<String, Object>> listMap = baseMapper.selectMeetingReceiveByMeetingTitle(currentUserId, title,status);
+            List<Map<String, Object>> listMap = baseMapper.selectMeetingReceiveByMeetingTitle(currentUserId, title, status);
             //加个详细的处理状态   显示为 待参会/已参会    接下来要做进一步处理
             if (listMap != null) {
                 for (Map<String, Object> currentMap : listMap) {
@@ -483,12 +492,12 @@ public class MeetingServiceImpl extends ServiceImpl<MeetingMapper, Meeting> impl
     @Override
     public Integer setMeetingStatus() {
         LocalDateTime currentDateTime = LocalDateTime.now();
-        Integer updateNums=-1;
+        Integer updateNums = -1;
         List<Meeting> meetings = meetingService.list(new QueryWrapper<Meeting>().eq("status", "待开"));
-        if(meetings!=null){
-            for(Meeting currentMeeting : meetings){
+        if (meetings != null) {
+            for (Meeting currentMeeting : meetings) {
                 //如果当前时间大于会议的结束时间，则把会议改为 已开
-                if(currentDateTime.compareTo(  currentMeeting.getEndTime()  )   >0   ){
+                if (currentDateTime.compareTo(currentMeeting.getEndTime()) > 0) {
                     currentMeeting.setStatus("已开");
                     meetingService.updateById(currentMeeting);
                     updateNums++;
@@ -510,11 +519,11 @@ public class MeetingServiceImpl extends ServiceImpl<MeetingMapper, Meeting> impl
             List<MeetingAttendees> currentAttendees = meetingAttendeesService
                     .list(new QueryWrapper<MeetingAttendees>()
                             .eq("meeting_id", currentMeeting.getId()));
-            if(currentAttendees !=null){
+            if (currentAttendees != null) {
                 boolean meetingAttendees = meetingAttendeesService
                         .remove(new UpdateWrapper<MeetingAttendees>()
                                 .eq("meeting_id", currentMeeting.getId()));
-                if (meetingAttendees==false){
+                if (meetingAttendees == false) {
                     System.out.println("meetingAttendees delete fail");
                     return -1;
                 }
@@ -524,15 +533,15 @@ public class MeetingServiceImpl extends ServiceImpl<MeetingMapper, Meeting> impl
                     .eq("id", meetingId)
                     .eq("status", "待发起")
                     .eq("host_id", userId));
-            if (removeMeeting ==false    ) {
+            if (removeMeeting == false) {
                 System.out.println("removeMeeting 失败");
                 return -1;
             }
             // 删除 room
-            MeetingRoom currentMeetingRoom = meetingRoomService.getById(   currentMeeting.getRoomId()   );
-            if(currentMeetingRoom!=null){
-                boolean b = meetingRoomService.removeById( currentMeeting.getRoomId() );
-                if (b==false){
+            MeetingRoom currentMeetingRoom = meetingRoomService.getById(currentMeeting.getRoomId());
+            if (currentMeetingRoom != null) {
+                boolean b = meetingRoomService.removeById(currentMeeting.getRoomId());
+                if (b == false) {
                     System.out.println("meetingRoom delete fail");
                     return -1;
                 }
@@ -545,9 +554,9 @@ public class MeetingServiceImpl extends ServiceImpl<MeetingMapper, Meeting> impl
             MeetingAttendees one = meetingAttendeesService
                     .getOne(new QueryWrapper<MeetingAttendees>().eq("user_id", userId)
                             .eq("meeting_id", meetingId));
-            if(one!=null){
+            if (one != null) {
                 boolean b = meetingAttendeesService.removeById(one.getId());
-                if(!b){
+                if (!b) {
                     System.out.println("remove attendees fail");
                     return -1;
                 }
