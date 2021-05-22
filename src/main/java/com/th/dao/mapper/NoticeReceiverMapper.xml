@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.th.dao.NoticeReceiverMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.th.entity.NoticeReceiver">
+        <id column="id" property="id" />
+        <result column="notice_id" property="noticeId" />
+        <result column="receiver_id" property="receiverId" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, notice_id, receiver_id
+    </sql>
+
+    <resultMap id="noticeReceiverEntity" type="com.th.entity.NoticeReceiver" extends="BaseResultMap">
+        <result property="receiverName" column="receiverName"/>
+    </resultMap>
+    <select id="selectNoticeReceiverByNoticeId" resultMap="noticeReceiverEntity">
+        select    id, notice_id, receiver_id, u.user_name receiverName
+         from t_notice_receiver inner join t_user u on u.user_id = receiver_id
+          where notice_id = #{noticeId}
+    </select>
+    
+</mapper>

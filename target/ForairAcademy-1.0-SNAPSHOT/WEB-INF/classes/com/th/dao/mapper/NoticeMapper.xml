@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.th.dao.NoticeMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.th.entity.Notice">
+        <id column="id" property="id" />
+        <result column="creator_id" property="creatorId" />
+        <result column="sending_time" property="sendingTime" />
+        <result column="status" property="status" />
+        <result column="title" property="title" />
+        <result column="content" property="content" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, creator_id, sending_time, status, title, content
+    </sql>
+
+
+    <resultMap id="creatNoticeEntity" type="com.th.entity.Notice" extends="BaseResultMap">
+        <collection property="receivers" column="id"
+                    select="com.th.dao.NoticeReceiverMapper.selectNoticeReceiverByNoticeId" />
+    </resultMap>
+    <select id="selectCreatNoticeDetailById" resultMap="creatNoticeEntity">
+            select id, creator_id,u.user_name creatorName, sending_time, status, title, content
+            from t_notice n inner join t_user u on n.creator_id = u.user_id
+            where id =#{currentId}
+    </select>
+    <select id="selectNoticeByReceiver" resultType="java.util.Map">
+        select nr.notice_id , n.title ,cu.user_name creatorName, n.sending_time,n.status,nr.receiver_id
+        from t_notice_receiver nr
+            inner join  t_user ru on nr.receiver_id = ru.user_id
+            inner join  t_notice n on nr.notice_id = n.id
+            inner join  t_user cu on n.creator_id = cu.user_id
+        where nr.receiver_id = #{currentId}
+        and n.status !='隐藏'
+    </select>
+    <select id="selectReceiverNoticeDetailById" resultType="com.th.entity.Notice">
+        select n.id , n.sending_time ,n.status,n.title, n.content, cu.user_name cratorName,nr.receiver_id
+        from t_notice n inner join  t_user cu  on n.creator_id = cu.user_id
+            inner  join  t_notice_receiver nr on n.id = nr.notice_id
+
+    </select>
+
+</mapper>
