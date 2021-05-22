@@ -103,6 +103,11 @@ public class MeetingServiceImpl extends ServiceImpl<MeetingMapper, Meeting> impl
                 }
             } else if ("线上".equals(mode)) {
                 //新增-线上  //2.4没有会议室相关信息。 没有操作，但留着
+                //新增-线上  //2.4没有会议室相关信息。写入线上会议的信息，不然查询会议详情的时候会出错
+                currentMeetingRoom.setRoomId(roomRoomId);
+                currentMeetingRoom.setName(roomName);
+                currentMeetingRoom.setId(-1);
+                meetingRoomService.save(currentMeetingRoom);
             } else {
                 //新增-模式错误
                 System.out.println("会议模式发送错误");
@@ -114,7 +119,11 @@ public class MeetingServiceImpl extends ServiceImpl<MeetingMapper, Meeting> impl
             currentMeeting.setStartTime(startTime);
             currentMeeting.setEndTime(endTime);
             currentMeeting.setMode(mode);
-            currentMeeting.setHostId(hostId);
+            if (recorderId != null) {
+                currentMeeting.setRecorderId(recorderId);
+            }else {
+                currentMeeting.setRecorderId(hostId);
+            }
             currentMeeting.setRecorderId(recorderId);
             currentMeeting.setStatus("待开");  //写死，不用前端传过来的数据
             currentMeeting.setNote(note);
@@ -168,7 +177,11 @@ public class MeetingServiceImpl extends ServiceImpl<MeetingMapper, Meeting> impl
             currentMeeting.setEndTime(endTime);
             currentMeeting.setMode(mode);
             currentMeeting.setHostId(hostId);
-            currentMeeting.setRecorderId(recorderId);
+            if (recorderId != null) {
+                currentMeeting.setRecorderId(recorderId);
+            }else {
+                currentMeeting.setRecorderId(hostId);
+            }
             currentMeeting.setStatus(status);
             currentMeeting.setNote(note);
             currentMeeting.setRoomId(ifRoomId);
@@ -217,14 +230,13 @@ public class MeetingServiceImpl extends ServiceImpl<MeetingMapper, Meeting> impl
         //时间判断空
         String startTimeStr = (String) map.get("startTime");
         String endTimeStr = (String) map.get("endTime");
-        LocalDateTime startTime =null ;
-        LocalDateTime endTime =null ;
+        LocalDateTime startTime = null;
+        LocalDateTime endTime = null;
         if (startTimeStr != null && startTimeStr.length() > 0) {
-             startTime = DataTransfer.parseStringToDate(startTimeStr);
+            startTime = DataTransfer.parseStringToDate(startTimeStr);
         }
         if (endTimeStr != null && endTimeStr.length() > 0) {
             endTime = DataTransfer.parseStringToDate(endTimeStr);
-            System.out.println("endTime="+endTime);
         }
         String mode = (String) map.get("mode");                                                // json参数中必须有
         Integer hostId = (Integer) map.get("hostId");
@@ -249,30 +261,17 @@ public class MeetingServiceImpl extends ServiceImpl<MeetingMapper, Meeting> impl
                 currentMeetingRoom.setStartTime(startTime);
                 currentMeetingRoom.setEndTime(endTime);
                 currentMeetingRoom.setStatus("空闲");
-                //判断会议室 是否有占用情况
-                List<MeetingRoom> listRoom = meetingRoomService.list(new QueryWrapper<MeetingRoom>()
-                        .eq("room_id", roomRoomId)
-                        .eq("status", "使用中"));
-                if (listRoom != null) {
-                    //可能有冲突时间段
-                    for (MeetingRoom currentSqlRoom : listRoom) {
-                        int a = endTime.compareTo(currentSqlRoom.getStartTime());// <0 能插入
-                        int b = startTime.compareTo(currentSqlRoom.getEndTime()); //> 0 能插入
-                        if (!(a < 0 || b > 0)) {
-                            //不能插入
-                            System.out.println("需要插入的时间冲突");
-                            return -1970;
-                        }
-                    }
-                }
-                //能走到这一步，说明没有时间冲突
                 boolean saveRoom = meetingRoomService.save(currentMeetingRoom);
                 if (saveRoom == false) {
                     System.out.println("会议室插入失败");
                     return -1;
                 }
             } else if ("线上".equals(mode)) {
-                //新增-线上  //2.4没有会议室相关信息。 没有操作，但留着
+                //新增-线上  //2.4没有会议室相关信息。写入线上会议的信息，不然查询会议详情的时候会出错
+                currentMeetingRoom.setRoomId(roomRoomId);
+                currentMeetingRoom.setName(roomName);
+                currentMeetingRoom.setId(-1);
+                meetingRoomService.save(currentMeetingRoom);
             } else {
                 //新增-模式错误
                 System.out.println("会议模式发送错误");
@@ -285,7 +284,11 @@ public class MeetingServiceImpl extends ServiceImpl<MeetingMapper, Meeting> impl
             currentMeeting.setEndTime(endTime);
             currentMeeting.setMode(mode);
             currentMeeting.setHostId(hostId);
-            currentMeeting.setRecorderId(recorderId);
+            if (recorderId != null) {
+                currentMeeting.setRecorderId(recorderId);
+            }else {
+                currentMeeting.setRecorderId(hostId);
+            }
             currentMeeting.setStatus("待发起");                   //待发起
             currentMeeting.setNote(note);
             currentMeeting.setRoomId(currentMeetingRoom.getId());
@@ -324,10 +327,10 @@ public class MeetingServiceImpl extends ServiceImpl<MeetingMapper, Meeting> impl
                 currentMeetingRoom.setEndTime(endTime);
                 currentMeetingRoom.setStatus("空闲");
                 boolean saveRoom = meetingRoomService.updateById(currentMeetingRoom);
-                if (saveRoom == false) {
-                    System.out.println("会议室插入失败");
-                    return -1;
-                }
+//                if (saveRoom == false) {
+//                    System.out.println("会议室插入失败");
+//                    return -1;
+//                }
             }
             /*     === = = = = = = = ==   meeting  = = = = = = = = = == = = = = = = = */
             currentMeeting.setId(ifId);
@@ -337,7 +340,11 @@ public class MeetingServiceImpl extends ServiceImpl<MeetingMapper, Meeting> impl
             currentMeeting.setEndTime(endTime);
             currentMeeting.setMode(mode);
             currentMeeting.setHostId(hostId);
-            currentMeeting.setRecorderId(recorderId);
+            if (recorderId != null) {
+                currentMeeting.setRecorderId(recorderId);
+            }else {
+                currentMeeting.setRecorderId(hostId);
+            }
             currentMeeting.setStatus(status);
             currentMeeting.setNote(note);
             currentMeeting.setRoomId(ifRoomId);
@@ -407,7 +414,7 @@ public class MeetingServiceImpl extends ServiceImpl<MeetingMapper, Meeting> impl
                 } else if ("已开".equals(currentMap.get("status"))) {
                     currentMap.put("status", "已参会");
                 } else {
-                    System.out.println("会议状态错误 meetingService");
+                    System.out.println("会议状态错误 getMeetingReceiveByUser");
                 }
             }
         }
@@ -430,10 +437,8 @@ public class MeetingServiceImpl extends ServiceImpl<MeetingMapper, Meeting> impl
             for (Map<String, Object> currentMap : listMap) {
                 if ("待发起".equals(currentMap.get("status"))) {
                     currentMap.put("status", "待发起");
-                } else if ("已发起".equals(currentMap.get("status"))) {
-                    currentMap.put("status", "已发起");
                 } else {
-                    System.out.println("会议状态错误 meetingService");
+                    currentMap.put("status", "已发起");
                 }
             }
         }

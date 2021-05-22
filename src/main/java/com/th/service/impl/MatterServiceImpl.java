@@ -547,14 +547,19 @@ public class MatterServiceImpl extends ServiceImpl<MatterMapper, Matter> impleme
         Integer currentUserId = (Integer) map.get("currentUserId");
         if ("已办".equals(matterStatus)) {
             //删除自己这个处理人，其他不用实现文本格式配置，附件不用删除
-            boolean removeHandler = matterHandlerService.remove(new QueryWrapper<MatterHandler>()
+            MatterHandler one = matterHandlerService.getOne(new QueryWrapper<MatterHandler>()
                     .eq("matter_id", currentMatterId)
                     .eq("matter_status", "已办")
                     .eq("handler_id", currentUserId));
-            if (removeHandler != true) {
-                System.out.println("移除removeHandler 失败");
-                return -1;
+            System.out.println(one);
+            if(one!=null){
+                matterHandlerService.removeById(one.getId());
             }
+
+//            if (removeHandler != true) {
+//                System.out.println("移除removeHandler 失败");
+//                return -1;
+//            }
             //
         } else if ("待发".equals(matterStatus)) {
             Matter currentMatter = baseMapper.selectOne(new QueryWrapper<Matter>()

@@ -55,16 +55,17 @@ public class MeetingController {
         Integer getMeetingId = null;
         try {
             getMeetingId = meetingService.insertMeeting(map);
+            if (getMeetingId > 0) {
+                //插入成功，返回插入后的会议id
+                return ResponseData.SUCCESS().extendData("meetingId", getMeetingId);
+            } else {
+                return ResponseData.FAIL().extendData("msg", "当前选择的会议室时间冲突了。");
+            }
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseData.ERROR();
         }
-        if (getMeetingId > 0) {
-            //插入成功，返回插入后的会议id
-            return ResponseData.SUCCESS().extendData("meetingId", getMeetingId);
-        } else {
-            return ResponseData.FAIL().extendData("msg", "时间冲突了");
-        }
+
     }
 
     //添加会议的草稿
@@ -74,16 +75,17 @@ public class MeetingController {
         Integer getMeetingId = null;
         try {
             getMeetingId = meetingService.insertDraft(map);
+            if (getMeetingId > 0) {
+                //插入成功，返回插入后的会议id
+                return ResponseData.SUCCESS().extendData("meetingId", getMeetingId);
+            } else {
+                return ResponseData.FAIL().extendData("msg", "后端错误");
+            }
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseData.ERROR();
         }
-        if (getMeetingId > 0) {
-            //插入成功，返回插入后的会议id
-            return ResponseData.SUCCESS().extendData("meetingId", getMeetingId);
-        } else {
-            return ResponseData.FAIL().extendData("msg", "时间冲突了");
-        }
+
     }
 
     /* = = = = = = = = = = =      以下为 缩略图查询      = = = = = = = = = = =     */
@@ -193,13 +195,6 @@ public class MeetingController {
         return ResponseData.SUCCESS().extendData("room", list);
     }
 
-    //整个会议室的使用详情。使用的详情。
-    @PostMapping("/getRoomList")
-    public ResponseData getRoomList(@RequestBody Map<String, Object> map) {
-        Integer needPage = (Integer) map.get("needPage");
-        PageHelper.startPage(needPage, 7);
-        List<MeetingRoom> list = meetingRoomService.list();
-        return ResponseData.SUCCESS().extendData("room", list);
-    }
+
 }
 

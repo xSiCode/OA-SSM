@@ -94,6 +94,10 @@ private static final long serialVersionUID=1L;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @TableField(exist = false)
+    private String roomRoomId;
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @TableField(exist = false)
     private String roomName;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -157,6 +161,14 @@ private static final long serialVersionUID=1L;
         this.roomId = roomId;
         this.roomName = roomName;
         this.attendees = attendees;
+    }
+
+    public String getRoomRoomId() {
+        return roomRoomId;
+    }
+
+    public void setRoomRoomId(String roomRoomId) {
+        this.roomRoomId = roomRoomId;
     }
 
     public Integer getId() {
@@ -299,8 +311,9 @@ private static final long serialVersionUID=1L;
                 ", status='" + status + '\'' +
                 ", note='" + note + '\'' +
                 ", roomId=" + roomId +
+                ", roomRoomId='" + roomRoomId + '\'' +
                 ", roomName='" + roomName + '\'' +
-                ", Attendees=" + attendees +
+                ", attendees=" + attendees +
                 '}';
     }
 }

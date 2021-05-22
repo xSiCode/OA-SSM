@@ -64,5 +64,13 @@ public class MeetingTest {
         System.out.println( JSON.toString(maps));
 
     }
+    @Test
+    public  void selectMeetingById(){
+        Meeting meeting = meetingMapper.selectMeetingById(71);
+        System.out.println(meeting);
+        System.out.println( JSON.toString(meeting));
+
+    }
+
 
 }
