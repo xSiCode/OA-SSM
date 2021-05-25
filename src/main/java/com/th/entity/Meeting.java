@@ -92,13 +92,15 @@ private static final long serialVersionUID=1L;
      */
     private Integer roomId;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @TableField(exist = false)
-    private String roomRoomId;
+    private Integer roomRoomId;
+
+    @TableField(exist = false)
+    private String roomName;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @TableField(exist = false)
-    private String roomName;
+    private List<Integer>attendeeIds;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @TableField(exist = false)
@@ -142,10 +144,10 @@ private static final long serialVersionUID=1L;
         this.roomName = roomName;
     }
 
-    public Meeting(Integer id, String title, String content, LocalDateTime startTime,
-                   LocalDateTime endTime, String mode, Integer hostId, String hostName,
-                   Integer recorderId, String recorderName, String status, String note,
-                   Integer roomId, String roomName, List<MeetingAttendees> attendees) {
+    public Meeting(Integer id, String title, String content, LocalDateTime startTime,LocalDateTime endTime,
+                   String mode, Integer hostId, String hostName,Integer recorderId, String recorderName,
+                   String status, String note, Integer roomId, String roomName,
+                   List<MeetingAttendees> attendees) {
         this.id = id;
         this.title = title;
         this.content = content;
@@ -163,11 +165,54 @@ private static final long serialVersionUID=1L;
         this.attendees = attendees;
     }
 
-    public String getRoomRoomId() {
+    public Meeting(Integer id, String title, String content, LocalDateTime startTime, LocalDateTime endTime,
+                   String mode, Integer hostId, String hostName, Integer recorderId, String recorderName,
+                   String status, String note, Integer roomId, Integer roomRoomId, String roomName,
+                   List<MeetingAttendees> attendees) {
+        this.id = id;
+        this.title = title;
+        this.content = content;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.mode = mode;
+        this.hostId = hostId;
+        this.hostName = hostName;
+        this.recorderId = recorderId;
+        this.recorderName = recorderName;
+        this.status = status;
+        this.note = note;
+        this.roomId = roomId;
+        this.roomRoomId = roomRoomId;
+        this.roomName = roomName;
+        this.attendees = attendees;
+    }
+
+    public Meeting(List<Integer> attendeeIds, Integer id, String title, String content, LocalDateTime startTime, LocalDateTime endTime,
+                   String mode, Integer hostId, String hostName, Integer recorderId, String recorderName,
+                   String status, String note, Integer roomId, Integer roomRoomId, String roomName) {
+        this.id = id;
+        this.title = title;
+        this.content = content;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.mode = mode;
+        this.hostId = hostId;
+        this.hostName = hostName;
+        this.recorderId = recorderId;
+        this.recorderName = recorderName;
+        this.status = status;
+        this.note = note;
+        this.roomId = roomId;
+        this.roomRoomId = roomRoomId;
+        this.roomName = roomName;
+        this.attendeeIds = attendeeIds;
+    }
+
+    public Integer getRoomRoomId() {
         return roomRoomId;
     }
 
-    public void setRoomRoomId(String roomRoomId) {
+    public void setRoomRoomId(Integer roomRoomId) {
         this.roomRoomId = roomRoomId;
     }
 
@@ -293,6 +338,14 @@ private static final long serialVersionUID=1L;
 
     public void setAttendees(List<MeetingAttendees> attendees) {
         this.attendees = attendees;
+    }
+
+    public List<Integer> getAttendeeIds() {
+        return attendeeIds;
+    }
+
+    public void setAttendeeIds(List<Integer> attendeeIds) {
+        this.attendeeIds = attendeeIds;
     }
 
     @Override

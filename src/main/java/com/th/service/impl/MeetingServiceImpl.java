@@ -119,9 +119,10 @@ public class MeetingServiceImpl extends ServiceImpl<MeetingMapper, Meeting> impl
             currentMeeting.setStartTime(startTime);
             currentMeeting.setEndTime(endTime);
             currentMeeting.setMode(mode);
+            currentMeeting.setHostId(hostId);
             if (recorderId != null) {
                 currentMeeting.setRecorderId(recorderId);
-            }else {
+            } else {
                 currentMeeting.setRecorderId(hostId);
             }
             currentMeeting.setRecorderId(recorderId);
@@ -179,14 +180,14 @@ public class MeetingServiceImpl extends ServiceImpl<MeetingMapper, Meeting> impl
             currentMeeting.setHostId(hostId);
             if (recorderId != null) {
                 currentMeeting.setRecorderId(recorderId);
-            }else {
+            } else {
                 currentMeeting.setRecorderId(hostId);
             }
             currentMeeting.setStatus(status);
             currentMeeting.setNote(note);
             currentMeeting.setRoomId(ifRoomId);
             boolean saveMeeting = meetingService.updateById(currentMeeting);
-            if (saveMeeting == false) {
+            if (!saveMeeting) {
                 System.out.println("会议插入失败");
                 return -1;
             }
@@ -286,7 +287,7 @@ public class MeetingServiceImpl extends ServiceImpl<MeetingMapper, Meeting> impl
             currentMeeting.setHostId(hostId);
             if (recorderId != null) {
                 currentMeeting.setRecorderId(recorderId);
-            }else {
+            } else {
                 currentMeeting.setRecorderId(hostId);
             }
             currentMeeting.setStatus("待发起");                   //待发起
@@ -342,7 +343,7 @@ public class MeetingServiceImpl extends ServiceImpl<MeetingMapper, Meeting> impl
             currentMeeting.setHostId(hostId);
             if (recorderId != null) {
                 currentMeeting.setRecorderId(recorderId);
-            }else {
+            } else {
                 currentMeeting.setRecorderId(hostId);
             }
             currentMeeting.setStatus(status);
@@ -385,8 +386,18 @@ public class MeetingServiceImpl extends ServiceImpl<MeetingMapper, Meeting> impl
     /* = = = = = = = = = = =      以下为 查看会议详情      = = = = = = = = = = =     */
     @Override
     public Meeting getMeetingById(Integer currentId) {
-
-        return baseMapper.selectMeetingById(currentId);
+        Meeting getMeeting = baseMapper.selectMeetingById(currentId);
+        //过滤掉 ： 记录人是发起人，过滤掉线上显示的会议名名字
+        if (getMeeting.getHostId().equals(getMeeting.getRecorderId())) {  //一般纪要人不是发起人，如果是，则置空串
+            getMeeting.setRecorderId( null);  //不要它渲染。
+            getMeeting.setRecorderName("");
+        }
+        if ("线上".equals(getMeeting.getMode())) {
+            getMeeting.setRoomRoomId(null);
+            getMeeting.setRoomName("");
+        }
+        System.out.println(getMeeting);
+        return getMeeting;
     }
 
     /* = = = = = = = = = = =      以下为 缩略图查询 receive      = = = = = = = = = = =     */
@@ -484,14 +495,16 @@ public class MeetingServiceImpl extends ServiceImpl<MeetingMapper, Meeting> impl
     @Override
     public Integer deleteMeetingBatch(List<Map<String, Object>> listMap) {
         //host: 待发起  已发起（待开/已开）   receiver: 待开  已开
+        Integer deleteCount = 0;
         for (Map<String, Object> currentMap : listMap) {
-            Integer integer = deleteMeeting(currentMap);
-            if (integer < 0) {
-                System.out.println("删除事项失败");
-                return -1;
+            deleteCount = deleteMeeting(currentMap);
+            if (deleteCount < 0) {
+                System.out.println("删除会议失败");
+                return deleteCount;
             }
+            deleteCount++;
         }
-        return 1;
+        return deleteCount;
 
     }
 
@@ -514,7 +527,103 @@ public class MeetingServiceImpl extends ServiceImpl<MeetingMapper, Meeting> impl
         return updateNums;
     }
 
+    @Override
+    public Integer saveOrUpdateMeeting(Map<String, Object> map) {
+        //先一步到位获取所有传递过来的参数
+        Integer id = (Integer) map.get("id");  //若获取到了id 则该数据之前是草稿，则需要的处理为 覆盖
+        String title = (String) map.get("title");
+        String content = (String) map.get("content");
+        LocalDateTime startTime = DataTransfer.parseStringToDate((String) map.get("startTime"));
+        LocalDateTime endTime = DataTransfer.parseStringToDate((String) map.get("endTime"));
+        String mode = (String) map.get("mode");
+        Integer hostId = (Integer) map.get("hostId");
+        String hostName = (String) map.get("hostName");
+        Integer recorderId = (Integer) map.get("recorderId");
+        String recorderName = (String) map.get("recorderName");
+        String status = (String) map.get("status"); // 会议状态  待开
+        String note = (String) map.get("note");
+        Integer roomId = (Integer) map.get("roomId");
+        Integer roomRoomId = (Integer) map.get("roomRoomId");
+        String roomName = (String) map.get("roomName");//数据库表中没有，但Java对象，即前端传入参数有。
+        List<Integer> attendeeIds = (List<Integer>) map.get("attendees");
+        //- - - - - - -- - - - - - -- - - - - 将已有数据一步到位存入meeting entity中  recorderId 可能为null
+        Meeting currentMeeting = new Meeting(attendeeIds, id, title, content, startTime, endTime
+                , mode, hostId, hostName, recorderId, recorderName,
+                status, note, roomId, roomRoomId, roomName);
+        System.out.println(currentMeeting); //完事后 可以删除
+        //按部就班 处理数据。
+        //根据插入的会议状态和会议室信息，写入表 t_meeting_room中
+        /* - - - - - - -- - - - - - -- - - - - - --  meeting_room _ - - - - - - - - - -- - - - - - - -- -  -*/
+        String roomStatus = "使用中"; //默认为 线下发起会议的状态
+        if ("线上".equals(mode)) {
+            roomStatus = "空闲"; //线上会议 空闲
+        } else if ("线下".equals(mode)) {
+            if ("待发起".equals(status)) {      //待发起状态栏，存草稿
+                roomStatus = "空闲"; //如果是存入的草稿，则不必判断时间是否冲突
+
+            } else if ("待开".equals(status)) { //已发起状态了，发送
+                //判断会议室 是否有占用情况
+                List<MeetingRoom> listRoom = meetingRoomService.list(new QueryWrapper<MeetingRoom>()
+                        .eq("room_id", roomRoomId)
+                        .eq("status", "使用中"));
+                if (listRoom != null) {
+                    //可能有冲突时间段
+                    for (MeetingRoom currentSqlRoom : listRoom) {
+                        int a = endTime.compareTo(currentSqlRoom.getStartTime());// <0 能插入
+                        int b = startTime.compareTo(currentSqlRoom.getEndTime()); //> 0 能插入
+                        if (!(a < 0 || b > 0)) {
+                            //不能插入
+                            System.out.println("需要插入的时间冲突");
+                            return -1;
+                        }
+                        System.out.println(a + "  " + b);
+                    }
+                }
+            } else {
+                System.out.println("发过来的状态不对");
+                return -11;
+            }
+            //到这一步，排除 时间冲突问题，可以插入数据库中
+        }
+        //插入数据库
+        MeetingRoom currentMeetingRoom = new MeetingRoom(roomId, roomRoomId, roomName, roomStatus, startTime, endTime);
+        boolean saveOrUpdateMeetingRoom = meetingRoomService.saveOrUpdate(currentMeetingRoom);
+        if (!saveOrUpdateMeetingRoom) {
+            System.out.println("saveOrUpdateMeetingRoom error");
+            return -2;
+        }
+        /* - - - - - - -- - - - - - -- - - - - - --  meeting _ - - - - - - - - - -- - - - - - - -- -  -*/
+        Integer getMeetingRoomId = currentMeetingRoom.getId();
+        currentMeeting.setRoomId(getMeetingRoomId); //
+        //判断纪要人是否为null,是的话，则说明是草稿，这里把它 设置为主持人ID，事实上，纪要人一般不能为主持人。//默认为 传过来的值
+        if (recorderId == null) {
+            currentMeeting.setRecorderId(hostId);
+        }
+        //插入数据库
+        meetingService.saveOrUpdate(currentMeeting);
+
+        /* - - - - - - -- - - - - - -- - - - - - --  attendees _ - - - - - - - - - -- - - - - - - -- -  -*/
+        Integer getMeetingId = currentMeeting.getId(); //得到会议的ID，无是新建还是之前是草稿
+
+        if (id != null) { //说明不是首次插入，要删除原来的与会人员信息。
+            List<MeetingAttendees> getAttendees = meetingAttendeesService.list(new QueryWrapper<MeetingAttendees>().eq("meeting_id", id));
+            if (getAttendees != null) { // 说明之前插入的数据里 有参会人员，这里有就要把它删除，不然会重复
+                meetingAttendeesService.remove(new QueryWrapper<MeetingAttendees>().eq("meeting_id", id));
+            }
+        }
+        if (attendeeIds != null) {   //得到参会人员的IDs ，若果有新加的参会人员 。但会议有可能是首次创建，即id 可能为null
+            for (Integer currentAttendeeId : attendeeIds) {//依次插入数据库中
+                MeetingAttendees currentMeetingAttendee = new MeetingAttendees(currentMeeting.getRoomId(),
+                        getMeetingId, currentAttendeeId, startTime, endTime);
+                meetingAttendeesService.saveOrUpdate(currentMeetingAttendee); //将当前拼接好的参会人员，插入参会表中,这里都为新增
+            }
+        }
+        //整个插入或删除 ，彻底完成
+        return getMeetingId;
+    }
+
     private Integer deleteMeeting(Map<String, Object> map) {
+
         //host: 待发起   已开
         String status = (String) map.get("status");
         Integer meetingId = (Integer) map.get("meetingId");
@@ -525,23 +634,16 @@ public class MeetingServiceImpl extends ServiceImpl<MeetingMapper, Meeting> impl
             List<MeetingAttendees> currentAttendees = meetingAttendeesService
                     .list(new QueryWrapper<MeetingAttendees>()
                             .eq("meeting_id", currentMeeting.getId()));
+            System.out.println(currentAttendees);
             if (currentAttendees != null) {
-                boolean meetingAttendees = meetingAttendeesService
-                        .remove(new UpdateWrapper<MeetingAttendees>()
-                                .eq("meeting_id", currentMeeting.getId()));
-                if (meetingAttendees == false) {
-                    System.out.println("meetingAttendees delete fail");
-                    return -1;
-                }
+                meetingAttendeesService.remove(new QueryWrapper<MeetingAttendees>()
+                        .eq("meeting_id", currentMeeting.getId()));
             }
             // 删除 meeting
-            boolean removeMeeting = meetingService.remove(new QueryWrapper<Meeting>()
-                    .eq("id", meetingId)
-                    .eq("status", "待发起")
-                    .eq("host_id", userId));
-            if (removeMeeting == false) {
+            Integer removeMeeting = baseMapper.deleteById(meetingId);
+            if (removeMeeting < 0) {
                 System.out.println("removeMeeting 失败");
-                return -1;
+                return -2;
             }
             // 删除 room
             MeetingRoom currentMeetingRoom = meetingRoomService.getById(currentMeeting.getRoomId());
@@ -549,7 +651,7 @@ public class MeetingServiceImpl extends ServiceImpl<MeetingMapper, Meeting> impl
                 boolean b = meetingRoomService.removeById(currentMeeting.getRoomId());
                 if (b == false) {
                     System.out.println("meetingRoom delete fail");
-                    return -1;
+                    return -3;
                 }
             }
 
@@ -564,12 +666,12 @@ public class MeetingServiceImpl extends ServiceImpl<MeetingMapper, Meeting> impl
                 boolean b = meetingAttendeesService.removeById(one.getId());
                 if (!b) {
                     System.out.println("remove attendees fail");
-                    return -1;
+                    return -4;
                 }
             }
         } else {
             System.out.println("参数错误");
-            return -1;
+            return -5;
         }
 
         return 1;

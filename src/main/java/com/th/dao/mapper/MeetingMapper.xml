@@ -28,6 +28,7 @@
     <resultMap id="listMeeting" extends="BaseResultMap" type="com.th.entity.Meeting">
         <result property="hostName" column="hostName"/>
         <result property="recorderName" column="recorderName"/>
+        <result property="recorderId" column="recorderId"/>
         <result property="roomName" column="roomName"/>
         <result property="roomRoomId" column="roomRoomId"/>
     </resultMap>
@@ -44,7 +45,7 @@
         select m.id id ,m.title title,content,
         m.start_time start_time, m.end_time end_time,
         m.status status,m.host_id, m.room_id room_id,
-        mode,host_id,recorder_id,note,
+        mode,host_id,recorder_id recorderId,note,
         h.user_name hostName, r.user_name recorderName,mr.name roomName,mr.room_id roomRoomId
         from    t_meeting m, t_meeting_room mr,t_user h,t_user r
         where m.room_id=mr.id
@@ -54,8 +55,8 @@
     </select>
     <!--    不用 inner join   压根就不能编译。 笛卡尔表集 太大了-->
     <select id="selectMeetingReceiveByUser" resultType="java.util.Map">
-        select m.id ,  m.title title , m.start_time startTime , m.end_time endTime, m.status status,m.note note,m.mode mode,
-         u.user_name attendeeName,  r.user_name recoderName ,h.user_name hostName,m.host_id
+        select m.id , m.title title , m.start_time startTime , m.end_time endTime, m.status status,m.note note,m.mode mode,
+        ma.user_id attendeeId,  u.user_name attendeeName,  r.user_name recoderName ,h.user_name hostName,m.host_id
         from t_meeting_attendees ma
             inner join  t_user u on ma.user_id =u.user_id
             inner join t_meeting m on m.id = ma.meeting_id
@@ -85,7 +86,7 @@
     </select>
     <select id="selectMeetingReceiveByMeetingTitle" resultType="java.util.Map">
         select m.id , m.title title , m.start_time startTime , m.end_time endTime, m.status status,m.note note,m.mode mode,
-               u.user_name attendeeName,  r.user_name recoderName ,h.user_name hostName,m.host_id
+                 ma.user_id attendeeId,   u.user_name attendeeName,  r.user_name recoderName ,h.user_name hostName,m.host_id
         from t_meeting_attendees ma
             inner join  t_user u on ma.user_id =u.user_id
             inner join t_meeting m on m.id = ma.meeting_id

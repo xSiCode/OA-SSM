@@ -50,11 +50,11 @@ public class AttendanceController {
     /* - - - - - -- - - - -   查看打卡列表 - -  - - - - - - - - -  -*/
     @PostMapping("getAttendanceList")
     public ResponseData getAttendanceList(@RequestBody Map<String,Integer> map){
-        PageHelper.startPage(map.get("needPage"),7);
+        PageHelper.startPage(map.get("needPage"),11);
         List<Attendance> currentAttendance = attendanceMapper.selectAttendance(  map.get("userId")   );
         if(currentAttendance!=null){
-            PageInfo page = new PageInfo(currentAttendance,7);
-            return ResponseData.SUCCESS().extendData("plans",page);
+            PageInfo page = new PageInfo(currentAttendance,11);
+            return ResponseData.SUCCESS().extendData("attendance",page);
         }
         return ResponseData.FAIL()  ;
     }

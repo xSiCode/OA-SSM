@@ -31,4 +31,6 @@ public interface MeetingService extends IService<Meeting> {
     Integer deleteMeetingBatch(List<Map<String, Object>> listMap);
 
     Integer setMeetingStatus();
+
+    Integer saveOrUpdateMeeting(Map<String, Object> map);
 }

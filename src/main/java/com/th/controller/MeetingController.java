@@ -181,7 +181,7 @@ public class MeetingController {
         if(flag>0){
             return  ResponseData.SUCCESS().extendData("deleteNums",flag);//extendData("insertMatter",insertMatter);
         }else {
-            return ResponseData.FAIL().extendData("msg","删除成功，返回失败");
+            return ResponseData.FAIL().extendData("flag 错误代码",flag);
         }
     }
 
@@ -193,6 +193,26 @@ public class MeetingController {
     public ResponseData getRoom() {
         List<Map<String, Object>> list = meetingRoomService.listRoomDistinct();
         return ResponseData.SUCCESS().extendData("room", list);
+    }
+
+
+    @PostMapping("saveOrUpdateMeeting")
+    public ResponseData saveOrUpdateMeeting(@RequestBody Map<String, Object> map) {
+        //将数据放入service层处理，并返回成功插入后的会议id
+        Integer getMeetingId ;
+        try {
+            getMeetingId = meetingService.saveOrUpdateMeeting(map);
+            if (getMeetingId > 0) {
+                //插入成功，返回插入后的会议id
+                return ResponseData.SUCCESS().extendData("meetingId", getMeetingId);
+            } else {
+                return ResponseData.FAIL().extendData("fail code", getMeetingId);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseData.ERROR();
+        }
+
     }
 
 

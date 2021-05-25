@@ -23,13 +23,20 @@
     <select id="selectListAll" resultMap="listAll">
         select id,title,content,start_time,end_time,p.user_id,u.user_name
         from t_plan p inner join t_user u on p.user_id = u.user_id
-        where p.user_id = #{param1}
+        where p.user_id = #{param1} order by start_time desc
     </select>
     <select id="selectPlanOne" resultMap="listAll">
         select id,title,content,start_time,end_time,p.user_id,u.user_name
         from t_plan p inner join t_user u on p.user_id = u.user_id
         where p.id =#{param1}
 
+    </select>
+    <select id="searchTitle" resultType="com.th.entity.Plan">
+                select id,title,content,start_time,end_time,p.user_id,u.user_name
+        from t_plan p inner join t_user u on p.user_id = u.user_id
+        where p.user_id = #{param1}
+         and p.title   like concat('%', #{param2},'%')
+         order by start_time desc
     </select>
 
 </mapper>

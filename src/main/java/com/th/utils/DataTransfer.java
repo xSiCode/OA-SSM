@@ -27,8 +27,18 @@ public class DataTransfer {
     }
 
     public static LocalDateTime parseStringToDate(String dateStr) {
-        DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        return LocalDateTime.parse(dateStr, df);
+        if( dateStr==null ||  dateStr.isEmpty()){
+            return null;
+        }
+
+        try {
+            DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+            return LocalDateTime.parse(dateStr, df);
+        } catch (Exception e) {
+            System.out.println("时间格式不对，转换错误。");
+            e.printStackTrace();
+            return null;
+        }
 
     }
 
