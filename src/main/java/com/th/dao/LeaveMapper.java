@@ -22,4 +22,8 @@ public interface LeaveMapper extends BaseMapper<Leave> {
     Leave selectLeaveById( @Param("leaveId") Integer currentId);
     //1,遍历出所有 请假信息中 审核状态为“待审核  的用户id
     List<Integer> listApplicantIds ();
+
+    List<Leave> selectBrief(Integer userId);
+
+    List<Leave> selectNeedAudit( Integer userId);
 }

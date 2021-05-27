@@ -32,20 +32,33 @@
     <sql id="leaveColumnEntity">
         l.id ,l.applicant_id,l.start_time,l.end_time,l.reason , l.tel ,
         l.site , l.category , l.recipient_id, l.approve_id,l.audit_opinion,l.status,
-         `at`.user_id applicant_name,
-         `rt`.user_id recipient_name,
-         `ae`.user_id approve_name
+         `at`.user_name applicant_name,
+         `rt`.user_name recipient_name,
+         `ae`.user_name approve_name
     </sql>
 
-
-    <select id="selectLeaveById" resultMap="leaveEntity">
-        select <include refid="leaveColumnEntity"/>
-        from t_leave l
+    <sql id="leaveCondition">
+        t_leave l
             inner join t_user `at` on   l.applicant_id = `at`.user_id
             inner join t_user rt   on   l.recipient_id =   rt.user_id
             inner join t_user ae   on   l.approve_id   =   ae.user_id
+    </sql>
+
+    <select id="selectLeaveById" resultMap="leaveEntity">
+        select <include refid="leaveColumnEntity"/>
+        from <include refid="leaveCondition"/>
         where
             l.id = #{leaveId}
+    </select>
+    <select id="selectBrief" resultMap="leaveEntity" >
+        select <include refid="leaveColumnEntity"/> 
+        from <include refid="leaveCondition"/>
+        where applicant_id =#{param1}
+    </select>
+    <select id="selectNeedAudit" resultMap="leaveEntity" >
+        select <include refid="leaveColumnEntity"/>
+        from <include refid="leaveCondition"/>
+        where approve_id =#{param1}
     </select>
     <select id="listApplicantIds" resultType="java.lang.Integer">
         select  l.id from t_leave l where l.status = '待审核'

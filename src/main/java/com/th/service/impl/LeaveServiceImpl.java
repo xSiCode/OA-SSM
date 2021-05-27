@@ -3,6 +3,7 @@ package com.th.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.th.entity.Leave;
 import com.th.dao.LeaveMapper;
+import com.th.entity.User;
 import com.th.service.LeaveService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.th.service.OrganizationService;
@@ -46,15 +47,17 @@ public class LeaveServiceImpl extends ServiceImpl<LeaveMapper, Leave> implements
     @Override
     public Integer insertLeave(Leave currentLeave) {
         currentLeave.setRecipientId( currentLeave.getApplicantId()   );//不要 请假承接人
-        currentLeave.setApproveId(  currentLeave.getApplicantId()   ); //审核人 默认为自己。但是不影响
+
         currentLeave.setStatus( "待审核"  );  //稳妥起见
+        //去数据库组织表中，查找当前请假的审核人。以便 用户能直观的看到自己的审核人
+        Integer getApproveId = getApproveIdByApplicantId( currentLeave.getApplicantId()  );
+        currentLeave.setApproveId( getApproveId  ); //根据当前 申请人ID  去查找 审核人ID 并放入  请假详情审核人中
         boolean saveOrUpdate = leaveService.saveOrUpdate(currentLeave);
         if(saveOrUpdate){
             return currentLeave.getId();
         }else {
             return -1;
         }
-
 
 //        Integer ifId = (Integer) map.get("id");
 //        Integer applicantId = (Integer) map.get("applicantId");
@@ -72,20 +75,72 @@ public class LeaveServiceImpl extends ServiceImpl<LeaveMapper, Leave> implements
 //
     }
 
-    @Override
-    public List<Leave> listBrief(Map<String, Object> map) {
-        Leave currentLeave = new Leave();
-        Integer userId = (Integer) map.get("userId");
-        String leaveStatus = (String) map.get("leaveStatus");
-        List<Leave>  leaves;
-        if("applicant".equals(leaveStatus)){
-            leaves = leaveService.list(  new QueryWrapper<Leave>().eq("applicant_id", userId));
-        }else if ("approve".equals(leaveStatus)){
-            leaves = leaveService.list(  new QueryWrapper<Leave>().eq("approve_id", userId));
-        }else {
-            System.out.println("用户状态错误");
+    private Integer getApproveIdByApplicantId(Integer applicantId) {
+        //根据申请人的ID 去寻找审核人的ID
+        //1,根据applicantId 找到它的组织 父路径
+        //遍历父路径第二个节点处相同的，且角色为A 的管理员，并返回。
+        /*  - - - - -- - - - - - -   解题代码 - - - - - - - - - - - - - - - - - */
+        //0,找到自己的组织list。
+        //得到当前请假员的 职位id
+        Integer applicantOrgId = organizationService.getOrgIdByUserId(applicantId);
+        //根据请假人员职位ID 得到 职位 顺序
+        List<Integer> applicantOrgIdOrder = organizationService.listParentPathsById(applicantOrgId);
+        //根据审核人员的职位顺序 得到 他的第2级 职位 orgId
+        Integer applicantIdOrg2th = applicantOrgIdOrder.get(2);
+        if(applicantIdOrg2th ==null ){
             return null;
         }
+        //得到  管理员用户的 id ,orgId
+        List<User> approveList = userService.list(new QueryWrapper<User>()
+                .select("user_id", "organization_id").eq("user_role", "A"));
+        //遍历管理员
+        //准备遍历 审核管理员的ID 是否和当前申请人ID 的组织顺序ID第二位相同
+        User currentUser;//暂存用户
+        List<Integer> orgIdByUserIdOrder ; //暂存组织ID的顺序
+
+        Iterator <User> userIt = approveList.iterator();
+        while (userIt.hasNext()){
+            currentUser = userIt.next();
+            //根据审核用户 找到他对应的职位orgId
+            orgIdByUserIdOrder= organizationService.listParentPathsById(   currentUser.getOrganizationId()   );
+            //判断 当前审核人员 职位顺序 第2位 是否 与 待审核用户 的相同，不相同，则从list中删除
+            if( ! applicantIdOrg2th.equals(  orgIdByUserIdOrder.get(2)  ) ){
+                userIt.remove();
+            }
+        }
+        //要么还剩一个人，要不为空，或者为多。 管理人ID+管理人组织ID  提取出管理人ID
+        if(approveList !=null){ //有一个或多个
+            for (User approveUser: approveList){
+                if( ! approveUser.getUserId().equals( applicantId   )){
+                    // //如果当前管理员和申请人的ID不相同则就是他了
+                    return approveUser.getUserId();
+                }
+            }
+        }
+        System.out.println("applicantId"+applicantId);////////////////////////////////
+            //当前没有人能审核你。我们还没设计好组织表
+            return applicantId;
+    }
+
+   
+
+    @Override
+    public List<Leave> listBrief(Map<String, Object> map) {
+        Integer userId = (Integer) map.get("userId");
+        List<Leave> leaves = baseMapper.selectBrief(userId);
+
+
+//        String leaveStatus = (String) map.get("leaveStatus");
+//        List<Leave>  leaves;
+//        if("applicant".equals(leaveStatus)){
+//
+//            leaves = leaveService.list(  new QueryWrapper<Leave>().eq("applicant_id", userId));
+//        }else if ("approve".equals(leaveStatus)){
+//            leaves = leaveService.list(  new QueryWrapper<Leave>().eq("approve_id", userId));
+//        }else {
+//            System.out.println("用户状态错误");
+//            return null;
+//        }
         return leaves;
     }
 
@@ -94,8 +149,9 @@ public class LeaveServiceImpl extends ServiceImpl<LeaveMapper, Leave> implements
         Integer currentApproveId = (Integer) map.get("approveId");
         String currentUserRole = (String) map.get("userRole");  // T A  ,只能A
         if( "A".equals(currentUserRole) ){
+            List<Leave> leaves = baseMapper.selectNeedAudit(currentApproveId);
             //返回需要审核的人的 请假缩略图
-            return  getNeedAuditBrief(currentApproveId);
+            return    leaves;
         }else {
             System.out.println("角色不对");
             return  null;
@@ -147,6 +203,16 @@ public class LeaveServiceImpl extends ServiceImpl<LeaveMapper, Leave> implements
     }
 
     private List<Leave> getNeedAuditBrief(Integer approveId) {
+
+
+
+
+
+
+
+
+
+//        事情有变，这个方法下面的步奏 都用不了了
         //返回需要审核的人的 请假缩略图
         /*  - - - - -- - - - - - -   思路 - - - - - - - - - - - - - - - - - */
         // 找到自己所在的组织中的 第3级  判断 是否相同，相同则为自己可以审核的。
@@ -170,7 +236,7 @@ public class LeaveServiceImpl extends ServiceImpl<LeaveMapper, Leave> implements
         if(approveOrg2th ==null ){
             return null;
         }
-        //1,得到所有 请假信息中 审核状态为“待审核  的 请假id,申请人id,
+        //1,得到所有 请假信息中 审核状态为“待审核  的 请假id，申请人id,
         List<Leave> applicantLeaves = baseMapper.selectList(new QueryWrapper<Leave>().select("id,applicant_id").eq("status", "待审核"));
         Leave currentLeave ;
         Integer orgIdByUserId ;

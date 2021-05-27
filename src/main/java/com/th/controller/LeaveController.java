@@ -101,9 +101,9 @@ public class LeaveController {
     @PostMapping("listBrief")
     public ResponseData listBrief(@RequestBody Map<String, Object> map) {
         Integer needPage = (Integer) map.get("needPage");
-        PageHelper.startPage(needPage, 7);
+        PageHelper.startPage(needPage, 8);
         List<Leave> leaves = leaveService.listBrief(map);
-        PageInfo page = new PageInfo(leaves, 7);
+        PageInfo page = new PageInfo(leaves, 8);
         return ResponseData.SUCCESS().extendData("listBrief", page);
     }
 
@@ -112,11 +112,10 @@ public class LeaveController {
     @PostMapping("listNeedAuditBrief")
     public ResponseData listNeedAuditBrief(@RequestBody Map<String, Object> map) {
         Integer needPage = (Integer) map.get("needPage");
-        PageHelper.startPage(needPage, 7);
-        PageInfo page = null;
+        PageHelper.startPage(needPage, 8);
         try {
             List<Leave> leaves = leaveService.listNeedAuditBrief(map);
-            page = new PageInfo(leaves, 7);
+            PageInfo page = new PageInfo(leaves, 8);
             return ResponseData.SUCCESS().extendData("listBrief", page);
         } catch (Exception e) {
             e.printStackTrace();

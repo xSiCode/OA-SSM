@@ -42,4 +42,20 @@ public class DataTransfer {
 
     }
 
+    public static LocalDate Str2YYYYmmDD(String dateStr) {
+        if( dateStr==null ||  dateStr.isEmpty()){
+            return null;
+        }
+        try {
+            DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            return LocalDate.parse(dateStr, df);
+        } catch (Exception e) {
+            System.out.println("时间格式不对，转换错误。");
+            e.printStackTrace();
+            return null;
+        }
+
+    }
+
+
 }

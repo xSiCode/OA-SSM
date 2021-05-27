@@ -60,6 +60,11 @@ public class NoticeServiceImpl extends ServiceImpl<NoticeMapper, Notice> impleme
         current.setStatus(status);
         current.setTitle(title);
         current.setContent(content);
+        //如果有ID的话 删除对应的参与人员。
+        if(   ifId !=null ){
+            noticeReceiverMapper.delete( new QueryWrapper<NoticeReceiver>().eq("notice_id",ifId));
+        }
+        //通知保存到数据库。
         boolean saveOrUpdate = noticeService.saveOrUpdate(current);
         if(!saveOrUpdate){
             System.out.println("新增，修改失败");
@@ -67,9 +72,6 @@ public class NoticeServiceImpl extends ServiceImpl<NoticeMapper, Notice> impleme
         NoticeReceiver currentReceiver =new NoticeReceiver();
         if(receivers!=null){
             Integer currentId = current.getId();
-            if(currentId !=null){
-                noticeReceiverMapper.delete( new QueryWrapper<NoticeReceiver>().eq("notice_id",currentId));
-            }
             for (Integer currentReceiverId : receivers){
                 currentReceiver.setNoticeId(currentId );
                 currentReceiver.setReceiverId( currentReceiverId  );
@@ -86,13 +88,8 @@ public class NoticeServiceImpl extends ServiceImpl<NoticeMapper, Notice> impleme
 
         for (Map<String, Object> currentMap : listMap) {
             Integer noticeId = (Integer) currentMap.get("noticeId");
-            int notice_id = noticeReceiverMapper.delete(new QueryWrapper<NoticeReceiver>().eq("notice_id", noticeId));
-            boolean remove = noticeService.remove(new QueryWrapper<Notice>()
-                    .eq("id", noticeId).eq("status", "隐藏") );
-            if (notice_id <1 && !remove ) {
-                System.out.println("删除待发公告失败");
-                return false;
-            }
+            noticeReceiverMapper.delete(new QueryWrapper<NoticeReceiver>().eq("notice_id", noticeId));
+            noticeService.remove(new QueryWrapper<Notice>().eq("id", noticeId).eq("status", "展示") );
         }
         return  true;
     }
@@ -104,9 +101,10 @@ public class NoticeServiceImpl extends ServiceImpl<NoticeMapper, Notice> impleme
     }
 
     @Override
-    public Notice getReceiverNoticeDetailById(Integer currentId) {
-
-        return baseMapper.selectReceiverNoticeDetailById(currentId);
+    public Notice getReceiverNoticeDetailById(Map<String,Integer> map   ) {
+        Integer noticeId = (Integer) map.get("currentNoticeId");
+        Integer receiverId = (Integer) map.get("receiverId");
+        return baseMapper.selectReceiverNoticeDetailById(noticeId,receiverId);
     }
 
     @Override
@@ -125,6 +123,11 @@ public class NoticeServiceImpl extends ServiceImpl<NoticeMapper, Notice> impleme
             }
         }
         return  true;
+    }
+
+    @Override
+    public List<Notice> listNoticeByCreator(Integer currentCreatorId) {
+        return baseMapper.selectNoticeByCreator(currentCreatorId);
     }
 
 }

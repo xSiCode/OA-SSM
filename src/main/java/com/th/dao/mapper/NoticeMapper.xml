@@ -37,10 +37,20 @@
         and n.status !='隐藏'
     </select>
     <select id="selectReceiverNoticeDetailById" resultType="com.th.entity.Notice">
-        select n.id , n.sending_time ,n.status,n.title, n.content, cu.user_name cratorName,nr.receiver_id
-        from t_notice n inner join  t_user cu  on n.creator_id = cu.user_id
+        select n.id , n.sending_time ,n.status,n.title, n.content,
+        n.creator_id, cu.user_name creatorName,nr.receiver_id ,ru.user_name receiveName
+        from t_notice n
             inner  join  t_notice_receiver nr on n.id = nr.notice_id
+            inner join  t_user cu  on n.creator_id = cu.user_id
+            inner  join  t_user ru  on nr.receiver_id = ru.user_id
+        where n.id =#{param1} and nr.receiver_id =#{param2}
 
+    </select>
+    <select id="selectNoticeByCreator" resultType="com.th.entity.Notice">
+        select n.id , n.title , n.creator_id , cu.user_name creatorName, n.sending_time,n.status
+        from   t_notice n
+            inner join  t_user cu on n.creator_id = cu.user_id
+        where n.creator_id =#{currentCreatorId}
     </select>
 
 </mapper>

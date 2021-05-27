@@ -91,9 +91,7 @@ public class NoticeController {
         Integer currentCreatorId =map.get("creatorId");
         PageHelper.startPage(needPage, 7);
         try {
-            List<Notice> listMap = noticeService
-                    .list(new QueryWrapper<Notice>().select("id,title,sending_time,status")
-                    .eq("creator_id",currentCreatorId));
+            List<Notice> listMap = noticeService.listNoticeByCreator(currentCreatorId);
             if (listMap != null) {
                 PageInfo page = new PageInfo(listMap, 7);
                 return ResponseData.SUCCESS().extendData("listNotice", page);
@@ -110,11 +108,11 @@ public class NoticeController {
     public ResponseData listNoticeByReceiver(@RequestBody Map<String, Integer> map) {
         Integer needPage = map.get("needPage");       //分页参数
         Integer receiverId =map.get("receiverId");
-        PageHelper.startPage(needPage, 7);
+        PageHelper.startPage(needPage, 8);
         try {
             List< Map<String,Object> > listMap = noticeService.listNoticeByReceiver(receiverId);
             if (listMap != null) {
-                PageInfo page = new PageInfo(listMap, 7);
+                PageInfo page = new PageInfo(listMap, 8);
                 return ResponseData.SUCCESS().extendData("listNotice", page);
             }else {
                 return ResponseData.FAIL().extendData("msg","没有该接收者对应状态的信息");
@@ -128,9 +126,8 @@ public class NoticeController {
     /* - - - - - - - - - - - - - -   以下为查看接收到的公告详情   - - - - - - - - - - - - -  */
     @PostMapping("getReceiverNoticeDetailById")
     public ResponseData getReceiverNoticeDetailById(@RequestBody Map<String, Integer> map) {
-        Integer currentId = map.get("currentNoticeId");
         try {
-            Notice currentNotice = noticeService.getReceiverNoticeDetailById(currentId);
+            Notice currentNotice = noticeService.getReceiverNoticeDetailById(map);
             if (currentNotice != null) {
                 return ResponseData.SUCCESS().extendData("currentNotice", currentNotice);
             } else {

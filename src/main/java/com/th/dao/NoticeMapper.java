@@ -23,5 +23,7 @@ public interface NoticeMapper extends BaseMapper<Notice> {
 
     List<Map<String, Object>> selectNoticeByReceiver( @Param("currentId") Integer receiverId);
 
-    Notice selectReceiverNoticeDetailById( @Param("currentId")  Integer currentId);
+    Notice selectReceiverNoticeDetailById(   Integer currentId,Integer userId);
+
+    List<Notice> selectNoticeByCreator(Integer currentCreatorId);
 }

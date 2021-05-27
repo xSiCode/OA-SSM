@@ -24,7 +24,9 @@ public interface NoticeService extends IService<Notice> {
 
     List<Map<String, Object>> listNoticeByReceiver(Integer receiverId);
 
-    Notice getReceiverNoticeDetailById(Integer currentId);
+    Notice getReceiverNoticeDetailById(Map<String,Integer> map);
 
     boolean receiverDeleteNotice(List<Map<String, Object>> listMap);
+
+    List<Notice> listNoticeByCreator(Integer currentCreatorId);
 }
