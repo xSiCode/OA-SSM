@@ -1,6 +1,9 @@
 package service;
 
+import com.th.dao.HomePageMapper;
+import com.th.dao.SearchMapper;
 import com.th.dao.TimeViewMapper;
+import com.th.service.HomePageService;
 import com.th.service.TimeViewService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -64,6 +67,63 @@ public class TimeViewTest {
     @Test
     public void jwt(){
 
+    }
+    @Autowired
+    private SearchMapper searchMapper;
+
+    @Test
+    public void getResultByTitle(){
+        //测试 搜索
+        List<Map<String, Object>> result = searchMapper.getResultByTitle(1004, "毕业生");
+
+
+        System.out.println(result);
+    }
+
+    @Autowired
+    private HomePageService homePageService;
+
+    @Test
+    public void listView(){
+        homePageService.listView(1004);
+    }
+
+    @Autowired
+    private HomePageMapper homePageMapper;
+
+    @Test
+    public void selectViewPlan(){
+        List<Map<String, Object>> maps = homePageMapper.selectViewPlan(1171);
+        System.out.println(maps);
+    }
+
+    @Test
+    public void listTimeViewDot(){
+        Integer userId = 1171 ;
+        LocalDateTime start = LocalDate.of(2021,5,1).atTime(0, 0, 0);
+        LocalDateTime end = LocalDate.of(2021,5,31).atTime(0, 0, 0);
+
+        Integer startDay = start.getDayOfMonth();
+        Integer startMonth = start.getMonthValue();
+
+        LocalDateTime localDate = start.plusDays(11);
+        System.out.println(localDate);
+
+        System.out.println(startDay+"fff " +startMonth);
+
+        Object todoNum = homePageMapper.countPlan(userId, start, end);
+        System.out.println(todoNum);
+    }
+
+
+    @Test
+    public void countTodo(){
+        Integer userId = 1171 ;
+        LocalDateTime start = LocalDate.of(2021,5,3).atTime(7, 0, 0);
+        LocalDateTime end = LocalDate.of(2021,5,3).atTime(23, 0, 0);
+
+        Integer integer = homePageMapper.countMeeting(userId, start, end);
+        System.out.println(integer);
     }
 
 }

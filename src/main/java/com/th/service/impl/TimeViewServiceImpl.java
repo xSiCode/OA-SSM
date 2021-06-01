@@ -37,7 +37,7 @@ public class TimeViewServiceImpl implements TimeViewService {
         // 已知：前端传过来的 时间数据 始终为 周一至周日，即 0-6 ，8-21
         List<TimeView> timeViews = new ArrayList<>();  //存放要 返回的时间视图数据  有14段
         for (int sdTime = 8; sdTime != 22; sdTime++) {   //8 -21 点   start-end time    划分时间段
-            //时间段 拼接  日期 + 时间  每一天的时间段
+            //时间段 拼接  日期 + 时间  每一天的时间段TimeViewService
             // currentTimeView  对象
             TimeView ctv = new TimeView();
             // 属性str
@@ -46,7 +46,7 @@ public class TimeViewServiceImpl implements TimeViewService {
             for (int week = 0; week != 7; week++) {
                 //更改日期，即 从周一换到周日
                 LocalDateTime start = startTime.plusDays(week).atTime(sdTime, 0, 0);
-                LocalDateTime end =  startTime.plusDays(week).atTime(sdTime + 1, 0, 0);
+                LocalDateTime end =  startTime.plusDays(week).atTime(sdTime , 59, 0);
                 // 1-7周 返回属性
                 //将每一个时间段，如 08:00 - 09:00  对应的 周一至周日七段数据，每段4个待办点 填入。
                 //1.得到待办事项：事项名          超过了截止日期已完成，不提示   title  Time

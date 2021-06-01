@@ -26,4 +26,5 @@ public interface UserMapper extends BaseMapper<User> {
    //根据职位id,找出对应的 用户id,name
    List< Map<Integer,String> > selectUsersIdNameByOrganizationId(@Param("organizationId") Integer organizationId);
 
+    List<Map<String, Object>> selectUserContactByOrgId(Integer orgId);
 }

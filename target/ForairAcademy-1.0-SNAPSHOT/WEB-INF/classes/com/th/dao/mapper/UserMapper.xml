@@ -45,5 +45,11 @@
         or user_id_card like concat('%',#{key}  ,'%')
         or `name` like concat('%',#{key}  ,'%') )
     </select>
+    <select id="selectUserContactByOrgId" resultType="java.util.Map">
+        select user_name name,user_tel tel
+        from t_user
+        where organization_id =#{orgId}
+
+    </select>
 
 </mapper>

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.th.dao.SearchMapper">
+
+    <select id="getResultByTitle" resultType="java.util.Map">
+         select * from (
+                 select 'id','title' ,'type'
+            union
+                select m.id,m.title , '事项'
+                from t_matter m inner join t_matter_handler mh on m.id =mh.matter_id
+                where mh.handler_id = #{userId}
+            union
+                select m.id,m.title ,'会议'
+                from t_meeting m inner join t_meeting_attendees ma on m.id = ma.meeting_id
+                where ma.user_id =#{userId}
+            union
+                select p.id , p.title ,'计划'
+                from  t_plan p where p.user_id =#{userId}
+
+            union
+                select n.id ,n.title ,'公告'
+                from t_notice n inner join t_notice_receiver nr on n.id = nr.notice_id
+                where nr.receiver_id =#{userId}
+
+        ) t
+        where title   like concat('%', #{title},'%')
+    </select>
+
+
+</mapper>
