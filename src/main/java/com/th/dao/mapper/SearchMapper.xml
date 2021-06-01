@@ -21,7 +21,6 @@
                 select n.id ,n.title ,'公告'
                 from t_notice n inner join t_notice_receiver nr on n.id = nr.notice_id
                 where nr.receiver_id =#{userId}
-
         ) t
         where title   like concat('%', #{title},'%')
     </select>

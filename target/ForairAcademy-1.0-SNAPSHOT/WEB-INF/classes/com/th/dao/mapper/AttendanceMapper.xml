@@ -21,7 +21,7 @@
     <select id="selectAttendance" resultMap="listAttendance">
         select id ,clock_time,a.user_id,site,u.user_name
         from t_attendance a inner join t_user u on a.user_id = u.user_id
-        where a.user_id = #{param1}
+        where a.user_id = #{param1} order by clock_time desc
     </select>
     <select id="selectAttendanceOne" resultMap="listAttendance">
         select id ,clock_time,a.user_id,site,u.user_name

@@ -51,7 +51,7 @@
     </bean>
 
 <!--    5,事务控制的配置-->
-<!--    id值必须为transactionManager  大小写都不能改的那种，耶稣不知道为什么-->
+<!--    -->
     <bean  id="transactionManager"  class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
 <!--    控制住数据源-->
         <property name="dataSource" ref="pooledDataSource"></property>

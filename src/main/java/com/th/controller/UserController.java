@@ -41,7 +41,6 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-
     @PostMapping("/login")
     public ResponseData login(@RequestBody Map<String, Object> userMap) {
         Integer id = Integer.parseInt(String.valueOf(userMap.get("userId")));
@@ -56,7 +55,6 @@ public class UserController {
                     .eq("user_role", role));
             /*  这里判断是否登录成功，若登录成功则返回用户更详细的信息。 */
             if (user != null) {
-                System.out.println("登录成功,预计返回用户信息和他所对应的 组织-职位  ");//职能部门-组织人事处-干事
                 user = userService.getUserOrganizationStringByUserId(user);
                 return ResponseData.SUCCESS().extendData("userOrganization", user);
             } else {
@@ -68,7 +66,6 @@ public class UserController {
             return ResponseData.ERROR();
         }
     }
-
 
     @PostMapping("/getUsersList")
     public ResponseData getUsersList(@RequestBody Map<String, Object> map) {
@@ -112,7 +109,6 @@ public class UserController {
             return ResponseData.ERROR().extendData("error", "服务端错误");
         }
     }
-
 
     /*若前端传入的参数不能正确封装为 User对象，则不能进入该方法里执行，前端会接收到错误*/
     @PostMapping("insert")
@@ -163,7 +159,6 @@ public class UserController {
 
 
     }
-
 
     //该请求表现为懒加载，作用是，请求完getTree，再请求该路径，作用表现为，树状选择职位后，展示对应的用户
     @PostMapping("usersMappedByOrganization")

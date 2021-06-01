@@ -58,21 +58,6 @@ public class LeaveServiceImpl extends ServiceImpl<LeaveMapper, Leave> implements
         }else {
             return -1;
         }
-
-//        Integer ifId = (Integer) map.get("id");
-//        Integer applicantId = (Integer) map.get("applicantId");
-//        LocalDateTime startTime = DataTransfer.parseStringToDate((String) map.get("startTime"));
-//        LocalDateTime endTime = DataTransfer.parseStringToDate((String) map.get("endTime"));
-//        String reason = (String) map.get("reason");
-//        String tel = (String) map.get("tel");
-//        String site = (String) map.get("site");
-//        String category = (String) map.get("category");      //请假类别【病假，产假，婚假，事假，出差，其他】
-//        Integer recipientId = (Integer) map.get("recipientId");
-//        Integer approveId = (Integer) map.get("approveId");
-//        String auditOpinion = (String) map.get("auditOpinion");
-//        String status   = (String) map.get("status");    //待审核  通过  未通过   ，统一为待审
-//        // 这个简单，根据 ifId 判断是否新建 还是 修改。
-//
     }
 
     private Integer getApproveIdByApplicantId(Integer applicantId) {
@@ -117,7 +102,6 @@ public class LeaveServiceImpl extends ServiceImpl<LeaveMapper, Leave> implements
                 }
             }
         }
-        System.out.println("applicantId"+applicantId);////////////////////////////////
             //当前没有人能审核你。我们还没设计好组织表
             return applicantId;
     }

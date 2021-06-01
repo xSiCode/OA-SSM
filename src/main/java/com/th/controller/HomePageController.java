@@ -30,6 +30,7 @@ public class HomePageController {
     public ResponseData view(@RequestBody Map<String, Object> map) {
         Integer userId = (Integer) map.get("userId");
         try {
+            //作用是 查询与当前用户相关的待办事项，待参加会议，待执行计划和收到的通知展示到主页中
             List<Object> getView = homePageService.listView(userId);
             if (getView != null) {
                 return ResponseData.SUCCESS().extendData("view", getView);
@@ -45,6 +46,7 @@ public class HomePageController {
     @PostMapping("timeViewDot")
     public ResponseData timeViewDot(@RequestBody Map<String, Object> map) {
         try {
+            //将前端传入的map数据传入service层中解析和处理
             List<Object> getView = homePageService.listTimeViewDot(map);
             if (getView != null) {
                 return ResponseData.SUCCESS().extendData("view", getView);

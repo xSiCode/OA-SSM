@@ -487,7 +487,6 @@ public class MatterServiceImpl extends ServiceImpl<MatterMapper, Matter> impleme
         if ("待办".equals(matterStatus) || "已办".equals(matterStatus)) {
             //加个详细的处理状态
             List<Map<String, Object>> listMap = baseMapper.selectMatterHandlerBriefByUserLike(currentUserId, matterStatus, needMatterName);
-            System.out.println(listMap);
             String timeLimitStr;
             String completedTimeStr;
             String currentTImeStr;
@@ -552,7 +551,6 @@ public class MatterServiceImpl extends ServiceImpl<MatterMapper, Matter> impleme
                     .eq("matter_id", currentMatterId)
                     .eq("matter_status", "已办")
                     .eq("handler_id", currentHandlerId));
-            System.out.println(one);
             if(one!=null){
                 matterHandlerService.removeById(one.getId());
             }
@@ -562,7 +560,6 @@ public class MatterServiceImpl extends ServiceImpl<MatterMapper, Matter> impleme
                     .eq("creator_id", currentUserId)
                     .eq("status", "待发"));
             //删除关联的附件
-            System.out.println(currentMatterId);
 
             //判断该事项是否有对应的附件
             List<MatterAttachment> deleteAttachment = matterAttachmentService.list(new QueryWrapper<MatterAttachment>()

@@ -105,9 +105,6 @@ public class HomePageServiceImpl  implements HomePageService {
         Integer userId = (Integer) map.get("userId");
         LocalDate startTime = DataTransfer.Str2YYYYmmDD(  (String) map.get("startTime")) ;
         LocalDate endTime = DataTransfer.Str2YYYYmmDD(  (String) map.get("endTime")) ;
-
-
-
         //根据传过来的参数，循环那么多次；
         int startDay = startTime.getDayOfMonth();    // 1
         int endDay = endTime.getDayOfMonth();     //31

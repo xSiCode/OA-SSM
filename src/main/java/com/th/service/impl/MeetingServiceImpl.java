@@ -396,7 +396,6 @@ public class MeetingServiceImpl extends ServiceImpl<MeetingMapper, Meeting> impl
             getMeeting.setRoomRoomId(null);
             getMeeting.setRoomName("");
         }
-        System.out.println(getMeeting);
         return getMeeting;
     }
 
@@ -464,7 +463,6 @@ public class MeetingServiceImpl extends ServiceImpl<MeetingMapper, Meeting> impl
         Integer currentUserId = (Integer) map.get("userId");
         List<Map<String, Object>> maps = new ArrayList<>();
         //根据状态分流
-        System.out.println(map);
         if ("待发起".equals(status) || "已发起".equals(status)) {
             String tempStatus;
             if ("待发起".equals(status)) {
@@ -550,7 +548,6 @@ public class MeetingServiceImpl extends ServiceImpl<MeetingMapper, Meeting> impl
         Meeting currentMeeting = new Meeting(attendeeIds, id, title, content, startTime, endTime
                 , mode, hostId, hostName, recorderId, recorderName,
                 status, note, roomId, roomRoomId, roomName);
-        System.out.println(currentMeeting); //完事后 可以删除
         //按部就班 处理数据。
         //根据插入的会议状态和会议室信息，写入表 t_meeting_room中
         /* - - - - - - -- - - - - - -- - - - - - --  meeting_room _ - - - - - - - - - -- - - - - - - -- -  -*/
@@ -576,7 +573,6 @@ public class MeetingServiceImpl extends ServiceImpl<MeetingMapper, Meeting> impl
                             System.out.println("需要插入的时间冲突");
                             return -1;
                         }
-                        System.out.println(a + "  " + b);
                     }
                 }
             } else {
@@ -634,7 +630,6 @@ public class MeetingServiceImpl extends ServiceImpl<MeetingMapper, Meeting> impl
             List<MeetingAttendees> currentAttendees = meetingAttendeesService
                     .list(new QueryWrapper<MeetingAttendees>()
                             .eq("meeting_id", currentMeeting.getId()));
-            System.out.println(currentAttendees);
             if (currentAttendees != null) {
                 meetingAttendeesService.remove(new QueryWrapper<MeetingAttendees>()
                         .eq("meeting_id", currentMeeting.getId()));

@@ -57,10 +57,6 @@ public class TimeViewServiceImpl implements TimeViewService {
                 List<Map<String, String>> plan = timeViewMapper.selectPlan(userId, start, end);
                 //4.管理员添加 待审核视图 映射。    待审核请假人数：x    时间，现在。
                 List<Map<String, String>> audit = timeViewMapper.selectAudit(userId, start, end);
-                System.out.println(matter);
-                System.out.println(meeting);
-                System.out.println(plan);
-                System.out.println(audit);
                 //以上的数据都是符合条件的数据，将以上数据封装成一个string
                 String packTitle; //准备 承接封装内容。
                 StringBuilder matterSb = new StringBuilder("");
